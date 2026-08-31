@@ -1,0 +1,107 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  onForegroundMessage,
+  requestMessagingToken,
+  type MessagingResult,
+} from "@/lib/messaging";
+
+type UiState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "enabled"; token: string }
+  | { kind: "info"; message: string };
+
+function resultToState(result: MessagingResult): UiState {
+  switch (result.status) {
+    case "ok":
+      return { kind: "enabled", token: result.token };
+    case "unsupported":
+      return {
+        kind: "info",
+        message: "Perangkat/browser ini tidak mendukung notifikasi.",
+      };
+    case "no-vapid-key":
+      return {
+        kind: "info",
+        message: "Notifikasi belum dikonfigurasi (VAPID key belum diset).",
+      };
+    case "denied":
+      return {
+        kind: "info",
+        message: "Izin notifikasi ditolak. Aktifkan lewat pengaturan browser.",
+      };
+    case "error":
+      return { kind: "info", message: "Gagal mengaktifkan notifikasi." };
+  }
+}
+
+export function NotificationSetup() {
+  const [state, setState] = useState<UiState>({ kind: "idle" });
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Tampilkan notifikasi saat pesan masuk ketika aplikasi sedang dibuka.
+  useEffect(() => {
+    let unsubscribe = () => {};
+    onForegroundMessage((payload) => {
+      const title = payload.notification?.title ?? "Klinik Metro Medika";
+      const body = payload.notification?.body ?? "";
+      if (Notification.permission === "granted") {
+        new Notification(title, { body, icon: "/icons/icon-192.png" });
+      }
+    }).then((unsub) => {
+      unsubscribe = unsub;
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleEnable = useCallback(async () => {
+    setState({ kind: "loading" });
+    const result = await requestMessagingToken();
+    if (!mountedRef.current) return;
+    setState(resultToState(result));
+    if (result.status === "ok") {
+      // Token dicetak agar bisa dipakai mengirim notifikasi uji dari
+      // Firebase Console (Cloud Messaging > Send test message).
+      console.log("FCM registration token:", result.token);
+    }
+  }, []);
+
+  return (
+    <section className="rounded-2xl border border-foreground/10 bg-white p-4 shadow-sm">
+      <h3 className="font-heading text-sm font-semibold text-foreground">
+        Notifikasi
+      </h3>
+      <p className="mt-1 text-sm text-foreground/60">
+        Aktifkan notifikasi untuk menerima pengingat dari klinik.
+      </p>
+
+      {state.kind === "enabled" ? (
+        <p className="mt-3 text-sm font-medium text-primary">
+          Notifikasi aktif di perangkat ini.
+        </p>
+      ) : (
+        <button
+          type="button"
+          onClick={handleEnable}
+          disabled={state.kind === "loading"}
+          className="mt-3 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        >
+          {state.kind === "loading" ? "Memproses..." : "Aktifkan Notifikasi"}
+        </button>
+      )}
+
+      {state.kind === "info" && (
+        <p className="mt-2 text-xs text-foreground/50">{state.message}</p>
+      )}
+    </section>
+  );
+}

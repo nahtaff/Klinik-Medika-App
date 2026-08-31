@@ -9,6 +9,7 @@ import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Card } from "@/components/Card";
 import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
 import { ClockIcon, MapPinIcon, PhoneIcon, WhatsAppIcon } from "@/components/icons";
+import { NotificationSetup } from "@/components/NotificationSetup";
 
 interface ContactInfo {
   nama_klinik?: string;
@@ -124,6 +125,8 @@ export default function Home() {
           →
         </span>
       </Link>
+
+      <NotificationSetup />
     </main>
   );
 }

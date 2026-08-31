@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 import { AuthProvider } from "@/components/AuthProvider";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -15,9 +16,26 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  applicationName: "Klinik Metro Medika",
   title: "Klinik Metro Medika",
   description:
     "Informasi klinik, jadwal dokter, dan rekam medis Klinik Metro Medika.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Metro Medika",
+  },
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/icon-192.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0EA5A4",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -31,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <div className="flex flex-1 flex-col pb-24">{children}</div>
           <FloatingWhatsAppButton />
         </AuthProvider>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
