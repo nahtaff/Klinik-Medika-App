@@ -38,9 +38,10 @@ const db = getFirestore();
 async function seedContactInfo() {
   await db.collection("contact_info").doc("main").set({
     nama_klinik: "Klinik Metro Medika",
-    alamat: "Jl. Metro Raya No. 10, Jakarta",
+    alamat:
+      "Jl. Raya Narogong No. 45, Cileungsi, Kabupaten Bogor, Jawa Barat 16820",
     nomor_whatsapp: "6281234567890",
-    nomor_telepon: "021-1234567",
+    nomor_telepon: "021-89231234",
     jam_operasional: {
       senin: "08:00 - 20:00",
       selasa: "08:00 - 20:00",
