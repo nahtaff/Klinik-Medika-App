@@ -104,14 +104,18 @@ export function ChevronDownIcon({ className = "" }: { className?: string }) {
   );
 }
 
-export function QuestionMarkIcon() {
+export function QuestionMarkIcon({
+  className = "h-4 w-4 shrink-0",
+}: {
+  className?: string;
+}) {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      className="h-4 w-4 shrink-0"
+      className={className}
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
@@ -121,6 +125,51 @@ export function QuestionMarkIcon() {
         d="M9.5 9a2.5 2.5 0 0 1 4.6-1.35c.4.6.4 1.4 0 2.02-.3.45-.75.72-1.2 1a1.9 1.9 0 0 0-1 1.63"
       />
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5h.01" />
+    </svg>
+  );
+}
+
+export function HomeIcon({ className = "h-4 w-4 shrink-0" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 10.5 12 3l9 7.5"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 9.5V20a1 1 0 0 0 1 1h4v-5.5h4V21h4a1 1 0 0 0 1-1V9.5"
+      />
+    </svg>
+  );
+}
+
+export function DocumentIcon({ className = "h-4 w-4 shrink-0" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 3h7l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13 3v5h5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.5 13h7M8.5 16.5h7" />
     </svg>
   );
 }

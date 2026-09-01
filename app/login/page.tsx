@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
@@ -186,12 +185,6 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6">
       <header>
-        <Link
-          href="/"
-          className="mb-2 inline-flex items-center gap-1 text-sm text-foreground/60 hover:text-primary"
-        >
-          <span aria-hidden="true">←</span> Beranda
-        </Link>
         <h1 className="font-heading text-2xl font-bold text-primary">
           Masuk ke Rekam Medis
         </h1>

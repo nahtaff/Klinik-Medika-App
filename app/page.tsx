@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { collection, getDocs, limit, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { HARI_LABEL, HARI_URUTAN } from "@/lib/hari";
@@ -90,41 +89,6 @@ export default function Home() {
         <EmptyState message="Informasi klinik belum tersedia." />
       )}
       {status === "success" && info && <InfoContent info={info} />}
-
-      <Link
-        href="/jadwal"
-        className="flex items-center justify-between rounded-2xl border border-foreground/10 bg-white p-4 text-sm font-medium text-foreground shadow-sm hover:border-primary/30"
-      >
-        Lihat Jadwal Dokter
-        <span aria-hidden="true" className="text-primary">
-          →
-        </span>
-      </Link>
-
-      <Link
-        href="/faq"
-        className="flex items-center justify-between rounded-2xl border border-foreground/10 bg-white p-4 text-sm font-medium text-foreground shadow-sm hover:border-primary/30"
-      >
-        Pertanyaan Umum (FAQ)
-        <span aria-hidden="true" className="text-primary">
-          →
-        </span>
-      </Link>
-
-      <Link
-        href="/rekam-medis"
-        className="flex items-center justify-between rounded-2xl border border-foreground/10 bg-white p-4 text-sm font-medium text-foreground shadow-sm hover:border-primary/30"
-      >
-        <span>
-          Rekam Medis
-          <span className="block text-xs font-normal text-foreground/50">
-            Perlu verifikasi nomor HP
-          </span>
-        </span>
-        <span aria-hidden="true" className="text-primary">
-          →
-        </span>
-      </Link>
 
       <NotificationSetup />
     </main>

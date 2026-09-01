@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 import { AuthProvider } from "@/components/AuthProvider";
+import { BottomNav } from "@/components/BottomNav";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 const inter = Inter({
@@ -46,8 +47,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
         <AuthProvider>
-          <div className="flex flex-1 flex-col pb-24">{children}</div>
+          <div className="flex flex-1 flex-col pb-32">{children}</div>
           <FloatingWhatsAppButton />
+          <BottomNav />
         </AuthProvider>
         <ServiceWorkerRegister />
       </body>
