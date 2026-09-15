@@ -33,12 +33,7 @@ export function QuickAccessGrid() {
       icon: DocumentIcon,
       badge: "Perlu Login",
     },
-    {
-      label: "FAQ Klinik",
-      href: "/faq",
-      icon: QuestionMarkIcon,
-      badge: "Tanpa Login",
-    },
+    { label: "FAQ Klinik", href: "/faq", icon: QuestionMarkIcon },
     { label: "Tentang Klinik", href: "#informasi", icon: InfoIcon },
   ];
 
