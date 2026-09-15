@@ -51,6 +51,15 @@ async function seedContactInfo() {
       sabtu: "08:00 - 20:00",
       minggu: "Tutup",
     },
+    // Profil layanan klinik (tanpa tarif/harga).
+    layanan: [
+      "Konsultasi Dokter Umum",
+      "Pemeriksaan Kesehatan Umum",
+      "Surat Keterangan Sehat",
+      "Pemeriksaan Tekanan Darah",
+      "Pengobatan Penyakit Ringan",
+      "Vaksinasi & Imunisasi",
+    ],
   });
   console.log("✓ contact_info seeded");
 }
