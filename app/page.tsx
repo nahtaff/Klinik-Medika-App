@@ -171,7 +171,7 @@ function InfoContent({ info }: { info: ContactInfo }) {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-foreground/80 underline-offset-4 hover:text-primary hover:underline"
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#25D366]/10 text-[#25D366]">
                   <WhatsAppIcon />
                 </span>
                 {info.nomor_whatsapp} (WhatsApp)

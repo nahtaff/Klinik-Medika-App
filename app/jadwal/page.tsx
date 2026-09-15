@@ -225,7 +225,7 @@ function JadwalContent({
           )}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
+          className="flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-90"
         >
           <WhatsAppIcon />
           Hubungi via WhatsApp untuk janji temu
