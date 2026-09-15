@@ -7,8 +7,16 @@ import { HARI_LABEL, HARI_URUTAN } from "@/lib/hari";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Card } from "@/components/Card";
 import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
-import { ClockIcon, MapPinIcon, PhoneIcon, WhatsAppIcon } from "@/components/icons";
+import {
+  CheckIcon,
+  ClockIcon,
+  MapPinIcon,
+  PhoneIcon,
+  StethoscopeIcon,
+  WhatsAppIcon,
+} from "@/components/icons";
 import { NotificationSetup } from "@/components/NotificationSetup";
+import { QuickAccessGrid } from "@/components/QuickAccessGrid";
 
 interface ContactInfo {
   nama_klinik?: string;
@@ -16,6 +24,7 @@ interface ContactInfo {
   nomor_whatsapp?: string;
   nomor_telepon?: string;
   jam_operasional?: Record<string, string>;
+  layanan?: string[];
 }
 
 type Status = "loading" | "success" | "empty" | "error";
@@ -66,32 +75,46 @@ export default function Home() {
   }, [fetchContactInfo]);
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6">
-      <header>
-        <h1 className="font-heading text-2xl font-bold text-primary">
-          Informasi Klinik
-        </h1>
-        <p className="mt-1 text-sm text-foreground/60">
-          Jam operasional, alamat, dan kontak klinik.
-        </p>
-      </header>
+    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-4 py-6 sm:max-w-lg sm:px-6">
+      <GreetingCard />
 
-      {status === "loading" && (
-        <Skeleton label="Memuat informasi klinik" count={3} />
-      )}
-      {status === "error" && (
-        <ErrorState
-          message="Gagal memuat informasi klinik. Periksa koneksi internet Anda."
-          onRetry={handleRetry}
-        />
-      )}
-      {status === "empty" && (
-        <EmptyState message="Informasi klinik belum tersedia." />
-      )}
-      {status === "success" && info && <InfoContent info={info} />}
+      <section id="informasi" className="flex scroll-mt-20 flex-col gap-4">
+        <h2 className="font-heading text-lg font-semibold text-foreground">
+          Informasi Klinik
+        </h2>
+
+        {status === "loading" && (
+          <Skeleton label="Memuat informasi klinik" count={3} />
+        )}
+        {status === "error" && (
+          <ErrorState
+            message="Gagal memuat informasi klinik. Periksa koneksi internet Anda."
+            onRetry={handleRetry}
+          />
+        )}
+        {status === "empty" && (
+          <EmptyState message="Informasi klinik belum tersedia." />
+        )}
+        {status === "success" && info && <InfoContent info={info} />}
+      </section>
+
+      <QuickAccessGrid />
 
       <NotificationSetup />
     </main>
+  );
+}
+
+function GreetingCard() {
+  return (
+    <div className="rounded-2xl bg-primary p-5 text-primary-foreground shadow-sm">
+      <h1 className="font-heading text-lg font-bold leading-snug">
+        Selamat datang di Klinik Metro Medika
+      </h1>
+      <p className="mt-1 text-sm text-primary-foreground/85">
+        Layanan kesehatan untuk Anda
+      </p>
+    </div>
   );
 }
 
@@ -104,28 +127,21 @@ function InfoContent({ info }: { info: ContactInfo }) {
     jam: info.jam_operasional![hari],
   }));
 
-  const hasNama = isFilled(info.nama_klinik);
+  const layananItems = (info.layanan ?? []).filter(isFilled);
+
   const hasAlamat = isFilled(info.alamat);
   const hasTelepon = isFilled(info.nomor_telepon);
   const hasWhatsapp = isFilled(info.nomor_whatsapp);
   const hasKontak = hasTelepon || hasWhatsapp;
   const hasJadwal = jamEntries.length > 0;
+  const hasLayanan = layananItems.length > 0;
 
-  if (!hasNama && !hasAlamat && !hasKontak && !hasJadwal) {
+  if (!hasAlamat && !hasKontak && !hasJadwal && !hasLayanan) {
     return <EmptyState message="Detail klinik belum dilengkapi." />;
   }
 
   return (
     <div className="flex flex-col gap-4">
-      {hasNama && (
-        <div>
-          <h2 className="font-heading text-xl font-bold text-foreground">
-            {info.nama_klinik}
-          </h2>
-          <span className="mt-1.5 block h-1 w-10 rounded-full bg-primary" />
-        </div>
-      )}
-
       {hasAlamat && (
         <Card title="Alamat" icon={<MapPinIcon />}>
           <p className="text-sm leading-6 text-foreground/80">
@@ -175,6 +191,24 @@ function InfoContent({ info }: { info: ContactInfo }) {
               >
                 <span className="text-foreground/70">{label}</span>
                 <span className="font-medium text-foreground">{jam}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {hasLayanan && (
+        <Card title="Layanan" icon={<StethoscopeIcon />}>
+          <ul className="flex flex-col gap-2.5">
+            {layananItems.map((item) => (
+              <li
+                key={item}
+                className="flex items-start gap-2 text-sm text-foreground/80"
+              >
+                <span className="mt-0.5 text-primary">
+                  <CheckIcon className="h-4 w-4" />
+                </span>
+                {item}
               </li>
             ))}
           </ul>

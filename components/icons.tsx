@@ -17,6 +17,62 @@ export function PhoneIcon() {
   );
 }
 
+export function InfoIcon({ className = "h-4 w-4 shrink-0" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 11v5M12 8h.01" />
+    </svg>
+  );
+}
+
+export function CheckIcon({ className = "h-4 w-4 shrink-0" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      className={className}
+      aria-hidden="true"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="m5 12.5 4.5 4.5L19 7" />
+    </svg>
+  );
+}
+
+export function StethoscopeIcon({ className = "h-4 w-4 shrink-0" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 3v5a4 4 0 0 0 8 0V3"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 16v1a4 4 0 0 0 8 0v-2"
+      />
+      <circle cx="18" cy="12" r="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function MapPinIcon() {
   return (
     <svg
