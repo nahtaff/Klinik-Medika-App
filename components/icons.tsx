@@ -17,6 +17,36 @@ export function PhoneIcon() {
   );
 }
 
+export function ContactBookIcon({
+  className = "h-4 w-4 shrink-0",
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M7 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h2M3 12h2M3 16h2" />
+      <circle cx="12" cy="10" r="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 16a3 3 0 0 1 6 0"
+      />
+    </svg>
+  );
+}
+
 export function InfoIcon({ className = "h-4 w-4 shrink-0" }: { className?: string }) {
   return (
     <svg

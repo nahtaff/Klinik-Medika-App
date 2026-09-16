@@ -10,6 +10,7 @@ import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
 import {
   CheckIcon,
   ClockIcon,
+  ContactBookIcon,
   MapPinIcon,
   PhoneIcon,
   StethoscopeIcon,
@@ -151,7 +152,7 @@ function InfoContent({ info }: { info: ContactInfo }) {
       )}
 
       {hasKontak && (
-        <Card title="Kontak" icon={<PhoneIcon />}>
+        <Card title="Kontak" icon={<ContactBookIcon />}>
           <div className="flex flex-col gap-3">
             {hasTelepon && (
               <a
