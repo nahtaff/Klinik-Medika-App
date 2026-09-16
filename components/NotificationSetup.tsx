@@ -48,7 +48,8 @@ export function NotificationSetup() {
     };
   }, []);
 
-  // Tampilkan notifikasi saat pesan masuk ketika aplikasi sedang dibuka.
+  // FCM tidak otomatis menampilkan notifikasi saat app di foreground —
+  // jadi tampilkan sendiri di sini (background ditangani oleh SW FCM).
   useEffect(() => {
     let unsubscribe = () => {};
     onForegroundMessage((payload) => {
