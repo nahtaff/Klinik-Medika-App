@@ -45,7 +45,7 @@ export function QuickAccessGrid() {
       >
         Akses Cepat
       </h2>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {items.map((item) => {
           const Icon = item.icon;
           return (
