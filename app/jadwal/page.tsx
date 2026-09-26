@@ -28,6 +28,10 @@ function isFilled(value: string | undefined | null): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+function daySeparatorClass(index: number): string {
+  return index < 2 ? "" : "md:border-t border-foreground/10";
+}
+
 export default function JadwalDokter() {
   const [status, setStatus] = useState<Status>("loading");
   const [doctor, setDoctor] = useState<Doctor | null>(null);
@@ -79,7 +83,7 @@ export default function JadwalDokter() {
   }, [fetchJadwal]);
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6">
+    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
       <header>
         <h1 className="font-heading text-2xl font-bold text-primary">
           Jadwal Dokter
@@ -184,13 +188,13 @@ function JadwalContent({
 
       <Card title="Jadwal Praktik" icon={<ClockIcon />}>
         {hasJadwalData ? (
-          <ul className="flex flex-col divide-y divide-foreground/10">
-            {HARI_URUTAN.map((hari) => {
+          <ul className="grid gap-x-6 divide-y divide-foreground/10 md:grid-cols-2 md:divide-y-0">
+            {HARI_URUTAN.map((hari, index) => {
               const entry = jadwalByHari.get(hari);
               return (
                 <li
                   key={hari}
-                  className="flex items-center justify-between gap-2 py-2 text-sm"
+                  className={`flex items-center justify-between gap-2 py-2 text-sm ${daySeparatorClass(index)}`}
                 >
                   <span className="text-foreground/70">
                     {HARI_LABEL[hari]}

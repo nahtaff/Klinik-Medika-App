@@ -75,8 +75,13 @@ export default function Home() {
     fetchContactInfo();
   }, [fetchContactInfo]);
 
+  // Lebar konten (NFR-02): mobile <640px tetap ramping seperti semula
+  // (max-w-md / sm:max-w-lg), melebar bertahap di tablet (md:max-w-2xl),
+  // desktop (lg:max-w-3xl), dan dikunci di xl:max-w-4xl supaya layar sangat
+  // lebar (>1536px) tidak membuat baris teks terlalu panjang. Pola kelas
+  // yang sama dipakai halaman Jadwal, FAQ, Rekam Medis, dan TopBar.
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-4 py-6 sm:max-w-lg sm:px-6">
+    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-4 py-6 sm:max-w-lg sm:px-6 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
       <GreetingCard />
 
       <section id="informasi" className="flex scroll-mt-20 flex-col gap-4">
@@ -142,7 +147,7 @@ function InfoContent({ info }: { info: ContactInfo }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="grid gap-4 md:grid-cols-2">
       {hasAlamat && (
         <Card title="Alamat" icon={<MapPinIcon />}>
           <p className="text-sm leading-6 text-foreground/80">

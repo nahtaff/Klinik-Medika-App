@@ -108,7 +108,7 @@ export default function FaqPage() {
   const groups = groupByKategori(faqs);
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6">
+    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
       <header>
         <h1 className="font-heading text-2xl font-bold text-primary">FAQ</h1>
         <p className="mt-1 text-sm text-foreground/60">
