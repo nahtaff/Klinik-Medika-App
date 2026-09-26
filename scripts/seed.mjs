@@ -39,16 +39,16 @@ async function seedContactInfo() {
   await db.collection("contact_info").doc("main").set({
     nama_klinik: "Klinik Metro Medika",
     alamat:
-      "Jl. Raya Narogong No. 45, Cileungsi, Kabupaten Bogor, Jawa Barat 16820",
+      "Ruko PTM I No. 42, JL Raya Alternatif Transyogi, Cileungsi, Perum Metland Transyogi, Bogor, Jawa Barat, Indonesia",
     nomor_whatsapp: "6281234567890",
     nomor_telepon: "021-89231234",
     jam_operasional: {
-      senin: "08:00 - 20:00",
-      selasa: "08:00 - 20:00",
-      rabu: "08:00 - 20:00",
-      kamis: "08:00 - 20:00",
-      jumat: "08:00 - 20:00",
-      sabtu: "08:00 - 20:00",
+      senin: "08:00 - 17:00",
+      selasa: "08:00 - 17:00",
+      rabu: "08:00 - 17:00",
+      kamis: "08:00 - 17:00",
+      jumat: "08:00 - 17:00",
+      sabtu: "08:00 - 17:00",
       minggu: "Tutup",
     },
     // Profil layanan klinik (tanpa tarif/harga).
@@ -73,7 +73,7 @@ async function seedDoctor() {
     jadwal_praktik: hariPraktik.map((hari) => ({
       hari,
       jam_mulai: "08:00",
-      jam_selesai: "20:00",
+      jam_selesai: "17:00",
     })),
   });
   console.log("✓ doctors seeded");
@@ -91,7 +91,7 @@ async function seedFaq() {
     {
       pertanyaan: "Apa saja jam operasional klinik?",
       jawaban:
-        "Klinik buka Senin-Sabtu pukul 08.00-20.00 WIB, tutup pada hari Minggu.",
+        "Klinik buka Senin-Sabtu pukul 08.00-17.00 WIB, tutup pada hari Minggu.",
       kategori: "Layanan",
       urutan: 2,
     },
