@@ -46,15 +46,20 @@ export default function FloatingWhatsAppButton() {
   if (!isFilled(nomorWhatsapp)) return null;
 
   // bottom-24 supaya mengambang di atas bottom navbar, tidak bertabrakan.
+  // Padding kiri/kanan tetap interpretar viewport (bukan container konten),
+  // supaya di layar lebar tombol nempel di pojok kanan bawah, bukan melayang
+  // jauh di tengah halaman.
   return (
-    <a
-      href={buildWhatsAppLink(nomorWhatsapp)}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Hubungi kami via WhatsApp"
-      className="fixed bottom-24 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-105"
-    >
-      <WhatsAppIcon className="h-7 w-7" />
-    </a>
+    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex justify-end px-5 md:px-6">
+      <a
+        href={buildWhatsAppLink(nomorWhatsapp)}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Hubungi kami via WhatsApp"
+        className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-105"
+      >
+        <WhatsAppIcon className="h-7 w-7" />
+      </a>
+    </div>
   );
 }
