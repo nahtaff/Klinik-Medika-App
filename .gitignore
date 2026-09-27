@@ -44,6 +44,11 @@ serviceAccountKey.json
 /public/sw.js.map
 /public/swe-worker-*.js
 
+# claude-flow / opencode tool scaffolding
+.claude-flow/
+.omo/
+.codegraph
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
