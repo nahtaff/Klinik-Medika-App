@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { collection, getDocs, limit, query } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { collection, getDocs, limit, query } from "firebase/firestore/lite";
+import { db } from "@/lib/firestore";
 import { HARI_LABEL, HARI_URUTAN, hariIniKey } from "@/lib/hari";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Card } from "@/components/Card";

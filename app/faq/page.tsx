@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { collection, getDocs } from "firebase/firestore/lite";
+import { db } from "@/lib/firestore";
 import { Card } from "@/components/Card";
 import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
 import { ChevronDownIcon, QuestionMarkIcon } from "@/components/icons";

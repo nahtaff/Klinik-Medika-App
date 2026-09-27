@@ -7,7 +7,7 @@ import {
   signInWithPhoneNumber,
   type ConfirmationResult,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth } from "@/lib/auth";
 import { normalizeIndonesianPhone } from "@/lib/phone";
 import { useAuth } from "@/components/AuthProvider";
 

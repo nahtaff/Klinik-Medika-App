@@ -9,9 +9,10 @@ import {
   query,
   type DocumentReference,
   type Timestamp,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import { signOut } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/firestore";
 import { useAuth } from "@/components/AuthProvider";
 import { RequireAuth } from "@/components/RequireAuth";
 import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
