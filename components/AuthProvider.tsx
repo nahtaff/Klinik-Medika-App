@@ -1,8 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import type { User } from "firebase/auth";
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -24,11 +23,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("loading");
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-      setStatus(firebaseUser ? "authenticated" : "unauthenticated");
-    });
-    return unsubscribe;
+    // Dynamic import, jangan dikembalikan ke import statis: provider ini
+    // ada di root layout, jadi `firebase/auth` akan ikut ter-bundle di
+    // initial load semua halaman — termasuk Beranda yang hanya butuh Firestore.
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+
+    void (async () => {
+      const [{ onAuthStateChanged }, { auth }] = await Promise.all([
+        import("firebase/auth"),
+        import("@/lib/auth"),
+      ]);
+      // Unmount selagi modul diunduh — jangan subscribe, agar listener
+      // tidak menggantung tanpa owners.
+      if (cancelled) return;
+      unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        setUser(firebaseUser);
+        setStatus(firebaseUser ? "authenticated" : "unauthenticated");
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
   return (
