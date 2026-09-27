@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  onForegroundMessage,
-  requestMessagingToken,
-  type MessagingResult,
-} from "@/lib/messaging";
+import type { MessagingResult } from "@/lib/messaging";
 
 type UiState =
   | { kind: "idle" }
@@ -39,6 +35,12 @@ function resultToState(result: MessagingResult): UiState {
 
 export function NotificationSetup() {
   const [state, setState] = useState<UiState>({ kind: "idle" });
+  // tracked separately from `Notification.permission` because that is not
+  // reactive: a visitor who grants mid-session via handleEnable() would never
+  // get a foreground listener if the effect below only read it on mount.
+  const [granted, setGranted] = useState(
+    () => typeof window !== "undefined" && Notification.permission === "granted"
+  );
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -50,25 +52,49 @@ export function NotificationSetup() {
 
   // FCM tidak otomatis menampilkan notifikasi saat app di foreground —
   // jadi tampilkan sendiri di sini (background ditangani oleh SW FCM).
+  //
+  // `firebase/messaging` adalah SDK terberat dan tidak ada gunanya diunduh
+  // sebelum ada izin, jadi dimuat lewat dynamic import dan baru setelah
+  // permission granted (saat mount, atau setelah user menekan tombol).
   useEffect(() => {
-    let unsubscribe = () => {};
-    onForegroundMessage((payload) => {
-      const title = payload.notification?.title ?? "Klinik Metro Medika";
-      const body = payload.notification?.body ?? "";
-      if (Notification.permission === "granted") {
-        new Notification(title, { body, icon: "/icons/icon-192.png" });
+    if (typeof window === "undefined") return;
+    if (!granted) return;
+
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+
+    void (async () => {
+      const { onForegroundMessage } = await import("@/lib/messaging");
+      const unsub = await onForegroundMessage((payload) => {
+        const title = payload.notification?.title ?? "Klinik Metro Medika";
+        const body = payload.notification?.body ?? "";
+        if (Notification.permission === "granted") {
+          new Notification(title, { body, icon: "/icons/icon-192.png" });
+        }
+      });
+      if (cancelled) {
+        unsub();
+        return;
       }
-    }).then((unsub) => {
       unsubscribe = unsub;
-    });
-    return () => unsubscribe();
-  }, []);
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, [granted]);
 
   const handleEnable = useCallback(async () => {
     setState({ kind: "loading" });
+    const { requestMessagingToken } = await import("@/lib/messaging");
     const result = await requestMessagingToken();
     if (!mountedRef.current) return;
     setState(resultToState(result));
+    // The original code subscribed unconditionally, so subscribe whenever
+    // permission ends up granted — not only when the token request itself
+    // succeeded, since a previously-registered device can still be pushed to.
+    if (Notification.permission === "granted") setGranted(true);
     if (result.status === "ok") {
       // Token dicetak agar bisa dipakai mengirim notifikasi uji dari
       // Firebase Console (Cloud Messaging > Send test message).
