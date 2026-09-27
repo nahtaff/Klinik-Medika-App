@@ -89,19 +89,29 @@ export default function Home() {
           Informasi Klinik
         </h2>
 
-        {status === "loading" && (
-          <Skeleton label="Memuat informasi klinik" count={3} />
-        )}
-        {status === "error" && (
-          <ErrorState
-            message="Gagal memuat informasi klinik. Periksa koneksi internet Anda."
-            onRetry={handleRetry}
-          />
-        )}
-        {status === "empty" && (
-          <EmptyState message="Informasi klinik belum tersedia." />
-        )}
-        {status === "success" && info && <InfoContent info={info} />}
+        <div
+          className={
+            // reserves the loaded layout's real height, measured from the
+            // production record: 912px while 1-col, 494px once 2-col. Without
+            // it the skeleton->content swap shoves QuickAccessGrid down and
+            // costs ~0.26 CLS. Loading-only, so error/empty stay compact.
+            status === "loading" ? "min-h-[912px] md:min-h-[494px]" : undefined
+          }
+        >
+          {status === "loading" && (
+            <Skeleton label="Memuat informasi klinik" count={3} />
+          )}
+          {status === "error" && (
+            <ErrorState
+              message="Gagal memuat informasi klinik. Periksa koneksi internet Anda."
+              onRetry={handleRetry}
+            />
+          )}
+          {status === "empty" && (
+            <EmptyState message="Informasi klinik belum tersedia." />
+          )}
+          {status === "success" && info && <InfoContent info={info} />}
+        </div>
       </section>
 
       <QuickAccessGrid />
