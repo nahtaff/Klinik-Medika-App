@@ -25,9 +25,13 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title ?? "Klinik Metro Medika";
-  self.registration.showNotification(title, {
-    body: payload.notification?.body ?? "",
+  // Pesan dengan payload `notification` (mis. dari Firebase Console) sudah
+  // ditampilkan otomatis oleh SDK sebelum handler ini dipanggil. Menampilkan
+  // lagi di sini membuat notifikasi muncul dua kali, jadi hanya pesan
+  // data-only yang ditangani di sini.
+  if (payload.notification) return;
+
+  self.registration.showNotification("Klinik Metro Medika", {
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
   });
