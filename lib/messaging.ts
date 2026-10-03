@@ -29,16 +29,13 @@ export async function requestMessagingToken(): Promise<MessagingResult> {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") return { status: "denied" };
 
-    // Daftarkan SW khusus FCM (terpisah dari SW offline Serwist).
-    const registration = await navigator.serviceWorker.register(
-      "/firebase-messaging-sw.js"
-    );
-
+    // Sengaja tanpa `serviceWorkerRegistration`: SDK lalu mendaftarkan sendiri
+    // /firebase-messaging-sw.js di scope "/firebase-cloud-messaging-push-scope"
+    // dan menunggu worker-nya aktif sebelum subscribe push. Jangan daftarkan
+    // di scope default "/": scope itu milik SW Serwist (/sw.js), dan satu
+    // scope hanya punya satu registrasi, jadi keduanya akan saling menimpa.
     const messaging = getMessaging(app);
-    const token = await getToken(messaging, {
-      vapidKey,
-      serviceWorkerRegistration: registration,
-    });
+    const token = await getToken(messaging, { vapidKey });
 
     return token
       ? { status: "ok", token }
