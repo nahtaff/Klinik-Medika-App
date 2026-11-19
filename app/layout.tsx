@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
-import { AuthProvider } from "@/components/AuthProvider";
 import { BottomNav } from "@/components/BottomNav";
 import { TopBar } from "@/components/TopBar";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
@@ -47,12 +46,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
-        <AuthProvider>
-          <TopBar />
-          <div className="flex flex-1 flex-col pb-32">{children}</div>
-          <FloatingWhatsAppButton />
-          <BottomNav />
-        </AuthProvider>
+        <TopBar />
+        <div className="flex flex-1 flex-col pb-32">{children}</div>
+        <FloatingWhatsAppButton />
+        <BottomNav />
         <ServiceWorkerRegister />
       </body>
     </html>

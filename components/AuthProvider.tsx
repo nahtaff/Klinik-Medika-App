@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import type { User } from "firebase/auth";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { auth } from "@/lib/auth";
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -15,39 +16,22 @@ const AuthContext = createContext<AuthContextValue>({
   status: "loading",
 });
 
-// Sumber kebenaran sesi pasien, dipakai F3 (OTP login) dan F4 (gerbang
-// akses rekam medis). Sesi disimpan di sessionStorage (lihat lib/auth.ts):
-// bertahan lintas reload, tapi hilang saat tab/app ditutup.
+// Sumber kebenaran sesi pasien untuk F3 (login OTP) dan F4 (gerbang rekam
+// medis). Hanya dipasang di /login dan /rekam-medis, supaya firebase/auth
+// tidak ikut dimuat di halaman publik. Sesi disimpan di sessionStorage
+// (lihat lib/auth.ts): bertahan lintas reload, hilang saat tab/app ditutup.
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [status, setStatus] = useState<AuthStatus>("loading");
 
-  useEffect(() => {
-    // Dynamic import, jangan dikembalikan ke import statis: provider ini
-    // ada di root layout, jadi `firebase/auth` akan ikut ter-bundle di
-    // initial load semua halaman — termasuk Beranda yang hanya butuh Firestore.
-    let cancelled = false;
-    let unsubscribe: (() => void) | undefined;
-
-    void (async () => {
-      const [{ onAuthStateChanged }, { auth }] = await Promise.all([
-        import("firebase/auth"),
-        import("@/lib/auth"),
-      ]);
-      // Unmount selagi modul diunduh — jangan subscribe, agar listener
-      // tidak menggantung tanpa owners.
-      if (cancelled) return;
-      unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+  useEffect(
+    () =>
+      onAuthStateChanged(auth, (firebaseUser) => {
         setUser(firebaseUser);
         setStatus(firebaseUser ? "authenticated" : "unauthenticated");
-      });
-    })();
-
-    return () => {
-      cancelled = true;
-      unsubscribe?.();
-    };
-  }, []);
+      }),
+    []
+  );
 
   return (
     <AuthContext.Provider value={{ user, status }}>

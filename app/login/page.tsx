@@ -9,7 +9,7 @@ import {
 } from "firebase/auth";
 import { auth } from "@/lib/auth";
 import { normalizeIndonesianPhone } from "@/lib/phone";
-import { useAuth } from "@/components/AuthProvider";
+import { AuthProvider, useAuth } from "@/components/AuthProvider";
 
 type Step = "phone" | "otp";
 type ActionStatus = "idle" | "sending" | "verifying";
@@ -64,6 +64,14 @@ function mapAuthError(error: unknown): string {
 }
 
 export default function LoginPage() {
+  return (
+    <AuthProvider>
+      <LoginContent />
+    </AuthProvider>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
   const { status: authStatus } = useAuth();
 

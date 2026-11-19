@@ -15,7 +15,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/firestore";
 import { isFilled } from "@/lib/text";
 import { useLoad } from "@/lib/useLoad";
-import { useAuth } from "@/components/AuthProvider";
+import { AuthProvider, useAuth } from "@/components/AuthProvider";
 import { RequireAuth } from "@/components/RequireAuth";
 import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
 import { CalendarIcon, PersonIcon } from "@/components/icons";
@@ -215,8 +215,10 @@ function Field({ label, value }: { label: string; value: string | undefined }) {
 
 export default function RekamMedisPage() {
   return (
-    <RequireAuth>
-      <RekamMedisContent />
-    </RequireAuth>
+    <AuthProvider>
+      <RequireAuth>
+        <RekamMedisContent />
+      </RequireAuth>
+    </AuthProvider>
   );
 }

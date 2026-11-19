@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/components/AuthProvider";
 import {
   CalendarIcon,
   DocumentIcon,
@@ -21,12 +20,6 @@ interface NavItem {
 
 export function BottomNav() {
   const pathname = usePathname();
-  const { status } = useAuth();
-
-  // Rekam Medis di balik OTP: kalau belum login, arahkan langsung ke gerbang
-  // /login (RequireAuth juga akan menolak akses langsung). Item tetap ditandai
-  // aktif baik di /rekam-medis maupun /login.
-  const rekamHref = status === "authenticated" ? "/rekam-medis" : "/login";
 
   const items: NavItem[] = [
     {
@@ -43,7 +36,10 @@ export function BottomNav() {
     },
     {
       label: "Rekam Medis",
-      href: rekamHref,
+      // Selalu ke /rekam-medis: RequireAuth mengalihkan ke /login kalau belum
+      // masuk, jadi navigasi tidak perlu memuat firebase/auth di semua
+      // halaman. Item tetap aktif di /login karena itu gerbangnya.
+      href: "/rekam-medis",
       icon: DocumentIcon,
       isActive: (p) => p.startsWith("/rekam-medis") || p.startsWith("/login"),
     },

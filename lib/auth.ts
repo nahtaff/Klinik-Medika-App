@@ -1,12 +1,9 @@
 // Auth dipisah dari lib/firebase.ts supaya halaman yang hanya butuh Firestore
-// tidak ikut memuat `firebase/auth`. Modul ini di-import statis oleh
-// /login dan /rekam-medis (halaman yang memang butuh sesi), sedangkan
-// AuthProvider — yang dirender di root layout, jadi ada di SEMUA halaman —
-// memuat modul ini lewat dynamic import. Hasilnya `firebase/auth` tidak lagi
-// ikut di initial load Beranda.
+// tidak ikut memuat `firebase/auth`. Hanya /login dan /rekam-medis (serta
+// AuthProvider yang dipasang di kedua halaman itu) yang meng-import modul ini.
 //
-// Catatan: modul ini tidak boleh di-import dari komponen yang aktif di
-// Beranda, karena itu akan menariknya kembali ke initial load.
+// Catatan: jangan import modul ini dari komponen di root layout atau halaman
+// publik, karena itu menarik `firebase/auth` kembali ke semua halaman.
 import { browserSessionPersistence, getAuth, setPersistence } from "firebase/auth";
 import { app } from "@/lib/firebase";
 
