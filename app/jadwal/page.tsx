@@ -1,20 +1,16 @@
-"use client";
-
 import { collection, getDocs, limit, query } from "firebase/firestore/lite";
 import { db, loadContactInfo } from "@/lib/firestore";
 import { HARI_LABEL, HARI_URUTAN, hariIniKey } from "@/lib/hari";
 import { groupJadwalByHari, type JadwalEntry } from "@/lib/jadwal";
 import { isFilled } from "@/lib/text";
-import { useLoad } from "@/lib/useLoad";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Card } from "@/components/Card";
-import {
-  EmptyState,
-  ErrorState,
-  Skeleton,
-  StaleNotice,
-} from "@/components/StatusStates";
+import { AvailabilityBadge, BadgeHariIni } from "@/components/HariIni";
+import { EmptyState } from "@/components/StatusStates";
 import { ClockIcon, PersonIcon, WhatsAppIcon } from "@/components/icons";
+
+// Dirender di server dan di-cache (ISR), sama seperti Beranda.
+export const revalidate = 60;
 
 interface Doctor {
   nama?: string;
@@ -43,8 +39,8 @@ async function loadJadwal(): Promise<{
   };
 }
 
-export default function JadwalDokter() {
-  const { status, data, stale, retry } = useLoad(loadJadwal, "jadwal");
+export default async function JadwalDokter() {
+  const data = await loadJadwal();
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
@@ -57,23 +53,10 @@ export default function JadwalDokter() {
         </p>
       </header>
 
-      {status === "loading" && (
-        <Skeleton label="Memuat jadwal dokter" count={2} itemClassName="h-24" />
-      )}
-      {status === "error" && (
-        <ErrorState
-          message="Gagal memuat jadwal dokter. Periksa koneksi internet Anda."
-          onRetry={retry}
-        />
-      )}
-      {status === "empty" && (
+      {data ? (
+        <JadwalContent doctor={data.doctor} whatsapp={data.whatsapp} />
+      ) : (
         <EmptyState message="Data dokter belum tersedia." />
-      )}
-      {status === "success" && data && (
-        <>
-          {stale && <StaleNotice />}
-          <JadwalContent doctor={data.doctor} whatsapp={data.whatsapp} />
-        </>
       )}
     </main>
   );
@@ -93,7 +76,6 @@ function JadwalContent({
 
   const jadwalByHari = groupJadwalByHari(doctor.jadwal_praktik);
   const hasJadwalData = jadwalByHari.size > 0;
-  const tersediaHariIni = jadwalByHari.has(hariIniKey());
 
   if (!hasNama && !hasSpesialisasi && !hasFoto && !hasJadwalData) {
     return <EmptyState message="Data dokter belum dilengkapi." />;
@@ -131,11 +113,9 @@ function JadwalContent({
 
         {hasJadwalData && (
           <div className="mt-3">
-            <AvailabilityBadge
-              available={tersediaHariIni}
-              label={
-                tersediaHariIni ? "Tersedia Hari Ini" : "Tidak Praktik Hari Ini"
-              }
+            <BadgeHariIni
+              hariPraktik={[...jadwalByHari.keys()]}
+              awal={jadwalByHari.has(hariIniKey())}
             />
           </div>
         )}
@@ -197,32 +177,6 @@ function JadwalContent({
         )}
       </Card>
     </div>
-  );
-}
-
-function AvailabilityBadge({
-  available,
-  label,
-}: {
-  available: boolean;
-  label: string;
-}) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${
-        available
-          ? "bg-primary/10 text-primary"
-          : "bg-foreground/5 text-foreground/70"
-      }`}
-    >
-      <span
-        aria-hidden="true"
-        className={`h-1.5 w-1.5 rounded-full ${
-          available ? "bg-primary" : "bg-foreground/30"
-        }`}
-      />
-      {label}
-    </span>
   );
 }
 

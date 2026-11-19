@@ -1,18 +1,11 @@
-"use client";
-
 import { loadContactInfo, type ContactInfo } from "@/lib/firestore";
 import { HARI_LABEL, HARI_URUTAN, mapByHari, statusHariIni } from "@/lib/hari";
 import { buildMapsLink } from "@/lib/maps";
 import { isFilled } from "@/lib/text";
-import { useLoad } from "@/lib/useLoad";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Card } from "@/components/Card";
-import {
-  EmptyState,
-  ErrorState,
-  Skeleton,
-  StaleNotice,
-} from "@/components/StatusStates";
+import { StatusHariIni } from "@/components/HariIni";
+import { EmptyState } from "@/components/StatusStates";
 import {
   CheckIcon,
   ClockIcon,
@@ -24,14 +17,15 @@ import {
 } from "@/components/icons";
 import { NotificationSetup } from "@/components/NotificationSetup";
 
-export default function Home() {
-  const {
-    status,
-    data: info,
-    stale,
-    retry,
-  } = useLoad(loadContactInfo, "contact_info");
-  const today = statusHariIni(info?.jam_operasional);
+// Dirender di server dan di-cache (ISR): konten sudah ada di HTML, jadi tidak
+// menunggu JS + request Firestore dari browser (LCP), dan halaman yang
+// tersimpan service worker tetap berisi saat offline. Halaman dibuat ulang di
+// latar belakang paling cepat tiap 60 detik: pengunjung pertama setelah data
+// diubah di Console masih melihat versi lama, pengunjung berikutnya yang baru.
+export const revalidate = 60;
+
+export default async function Home() {
+  const info = await loadContactInfo();
 
   // Lebar konten (NFR-02): mobile <640px tetap ramping seperti semula
   // (max-w-md / sm:max-w-lg), melebar bertahap di tablet (md:max-w-2xl),
@@ -44,42 +38,17 @@ export default function Home() {
         <h1 className="font-heading text-2xl font-bold text-primary">
           Informasi Klinik
         </h1>
-        {/* min-h-5 holds the line while loading, so the status text that
-            arrives with the data doesn't push the page down. */}
-        <p
-          className={`mt-1 min-h-5 text-sm ${
-            today ? "font-medium text-foreground" : "text-foreground/60"
-          }`}
-        >
-          {today ?? "Jam buka, alamat, dan kontak klinik."}
-        </p>
+        <StatusHariIni
+          jamOperasional={info?.jam_operasional}
+          awal={statusHariIni(info?.jam_operasional)}
+        />
       </header>
 
-      {stale && <StaleNotice />}
-
-      <div
-        className={
-          // reserves the loaded layout's real height, measured from the
-          // production record: 912px while 1-col, 494px once 2-col. Without
-          // it the skeleton->content swap shoves NotificationSetup down and
-          // costs ~0.26 CLS. Loading-only, so error/empty stay compact.
-          status === "loading" ? "min-h-[912px] md:min-h-[494px]" : undefined
-        }
-      >
-        {status === "loading" && (
-          <Skeleton label="Memuat informasi klinik" count={3} />
-        )}
-        {status === "error" && (
-          <ErrorState
-            message="Gagal memuat informasi klinik. Periksa koneksi internet Anda."
-            onRetry={retry}
-          />
-        )}
-        {status === "empty" && (
-          <EmptyState message="Informasi klinik belum tersedia." />
-        )}
-        {status === "success" && info && <InfoContent info={info} />}
-      </div>
+      {info ? (
+        <InfoContent info={info} />
+      ) : (
+        <EmptyState message="Informasi klinik belum tersedia." />
+      )}
 
       <NotificationSetup />
     </main>

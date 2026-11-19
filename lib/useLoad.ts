@@ -42,13 +42,13 @@ function browserStorage(): Storage | undefined {
   }
 }
 
-// Pola ambil-sekali yang dipakai semua halaman: loading/success/empty/error
-// plus retry. `load` harus stabil (fungsi modul atau useCallback) dan
-// mengembalikan null untuk "data kosong".
+// Pola ambil-sekali untuk data yang dibaca di browser (rekam medis, tombol
+// WhatsApp): loading/success/empty/error plus retry. `load` harus stabil
+// (fungsi modul atau useCallback) dan mengembalikan null untuk "data kosong".
 //
 // Dengan `cacheKey`, hasil sukses terakhir disimpan di localStorage dan
-// dipakai saat jaringan gagal, supaya halaman publik tetap berisi saat
-// offline (F6). JANGAN beri cacheKey untuk data pribadi seperti rekam medis.
+// dipakai saat jaringan gagal (offline, F6). JANGAN beri cacheKey untuk data
+// pribadi seperti rekam medis.
 export function useLoad<T>(load: () => Promise<T | null>, cacheKey?: string) {
   const [state, setState] = useState<LoadState<T>>({
     status: "loading",

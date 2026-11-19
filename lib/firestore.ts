@@ -5,8 +5,8 @@
 // Pakai entrypoint `firebase/firestore/lite`: aplikasi ini hanya membaca
 // (getDoc/getDocs satu kali, tanpa onSnapshot, tanpa persistence, tanpa
 // transaksi), jadi tidak perlu memuat query engine + IndexedDB persistence
-// milik SDK penuh. Saat offline (F6), service worker menyajikan halaman dan
-// useLoad menampilkan data publik terakhir dari localStorage.
+// milik SDK penuh. Halaman publik membaca Firestore di server (ISR), jadi saat
+// offline (F6) halaman yang disimpan service worker sudah berisi data.
 import {
   collection,
   getDocs,
@@ -29,8 +29,8 @@ export interface ContactInfo {
   layanan?: string[];
 }
 
-// Dipakai Beranda, Jadwal, dan tombol WhatsApp. Ketiganya memakai cacheKey
-// "contact_info" yang sama, jadi bentuk datanya harus tetap sama.
+// Dipakai Beranda dan Jadwal (di server) serta tombol WhatsApp (di browser,
+// lewat useLoad dengan cacheKey "contact_info").
 export async function loadContactInfo(): Promise<ContactInfo | null> {
   const snapshot = await getDocs(
     query(collection(db, "contact_info"), limit(1))

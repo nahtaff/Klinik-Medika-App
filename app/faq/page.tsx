@@ -1,18 +1,13 @@
-"use client";
-
 import { collection, getDocs } from "firebase/firestore/lite";
 import { db } from "@/lib/firestore";
 import { groupByKategori, type Faq } from "@/lib/faq";
 import { isFilled } from "@/lib/text";
-import { useLoad } from "@/lib/useLoad";
 import { Card } from "@/components/Card";
-import {
-  EmptyState,
-  ErrorState,
-  Skeleton,
-  StaleNotice,
-} from "@/components/StatusStates";
+import { EmptyState } from "@/components/StatusStates";
 import { ChevronDownIcon, QuestionMarkIcon } from "@/components/icons";
+
+// Dirender di server dan di-cache (ISR), sama seperti Beranda.
+export const revalidate = 60;
 
 async function loadFaqs(): Promise<Faq[] | null> {
   const snapshot = await getDocs(collection(db, "config_faq"));
@@ -22,9 +17,8 @@ async function loadFaqs(): Promise<Faq[] | null> {
   return items.length > 0 ? items : null;
 }
 
-export default function FaqPage() {
-  const { status, data: faqs, stale, retry } = useLoad(loadFaqs, "faq");
-  const groups = groupByKategori(faqs ?? []);
+export default async function FaqPage() {
+  const faqs = await loadFaqs();
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
@@ -35,20 +29,9 @@ export default function FaqPage() {
         </p>
       </header>
 
-      {status === "loading" && (
-        <Skeleton label="Memuat FAQ" count={3} itemClassName="h-16" />
-      )}
-      {status === "error" && (
-        <ErrorState
-          message="Gagal memuat FAQ. Periksa koneksi internet Anda."
-          onRetry={retry}
-        />
-      )}
-      {status === "empty" && <EmptyState message="Belum ada FAQ tersedia." />}
-      {status === "success" && stale && <StaleNotice />}
-      {status === "success" && (
+      {faqs ? (
         <div className="flex flex-col gap-4">
-          {groups.map((group) => (
+          {groupByKategori(faqs).map((group) => (
             <Card
               key={group.kategori}
               title={group.kategori}
@@ -63,6 +46,8 @@ export default function FaqPage() {
             </Card>
           ))}
         </div>
+      ) : (
+        <EmptyState message="Belum ada FAQ tersedia." />
       )}
     </main>
   );

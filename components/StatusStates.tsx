@@ -43,18 +43,6 @@ export function ErrorState({
   );
 }
 
-// Ditampilkan saat useLoad memakai data cache karena jaringan gagal.
-export function StaleNotice() {
-  return (
-    <p
-      role="status"
-      className="rounded-2xl border border-foreground/10 bg-white px-4 py-3 text-sm text-foreground/70"
-    >
-      Tidak dapat terhubung. Menampilkan data terakhir yang tersimpan.
-    </p>
-  );
-}
-
 export function EmptyState({ message }: { message: string }) {
   return (
     <div className="rounded-2xl border border-foreground/10 bg-white p-6 text-center text-sm text-foreground/60">
