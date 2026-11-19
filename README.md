@@ -80,7 +80,7 @@ Script seed memakai Firebase Admin SDK karena security rules menolak semua write
 
 ## Pengujian
 
-Unit test ada di `lib/*.test.ts` dan menguji logika yang tidak bergantung pada Firebase: validasi nomor HP (F3), link WhatsApp dan Google Maps, penyusunan jadwal praktik dan nama hari, status buka hari ini, pengelompokan FAQ, cache data offline, dan deteksi Safari iOS untuk notifikasi.
+Unit test ada di `lib/*.test.ts` dan menguji logika yang tidak bergantung pada Firebase: validasi nomor HP (F3), link WhatsApp dan Google Maps, penyusunan jadwal praktik dan nama hari, status buka hari ini (dihitung dalam WIB, juga saat server berjalan di UTC), pengelompokan FAQ, dan deteksi Safari iOS untuk notifikasi.
 
 ## Struktur folder
 

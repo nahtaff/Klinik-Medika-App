@@ -9,9 +9,6 @@ import { AvailabilityBadge, BadgeHariIni } from "@/components/HariIni";
 import { EmptyState } from "@/components/StatusStates";
 import { ClockIcon, PersonIcon, WhatsAppIcon } from "@/components/icons";
 
-// Dirender di server dan di-cache (ISR), sama seperti Beranda.
-export const revalidate = 60;
-
 interface Doctor {
   nama?: string;
   spesialisasi?: string;

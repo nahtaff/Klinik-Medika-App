@@ -17,13 +17,7 @@ import {
 } from "@/components/icons";
 import { NotificationSetup } from "@/components/NotificationSetup";
 
-// Dirender di server dan di-cache (ISR): konten sudah ada di HTML, jadi tidak
-// menunggu JS + request Firestore dari browser (LCP), dan halaman yang
-// tersimpan service worker tetap berisi saat offline. Halaman dibuat ulang di
-// latar belakang paling cepat tiap 60 detik: pengunjung pertama setelah data
-// diubah di Console masih melihat versi lama, pengunjung berikutnya yang baru.
-export const revalidate = 60;
-
+// Server Component; revalidasi ISR diatur sekali di app/layout.tsx.
 export default async function Home() {
   const info = await loadContactInfo();
 

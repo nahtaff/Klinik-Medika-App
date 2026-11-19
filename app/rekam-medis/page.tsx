@@ -96,8 +96,8 @@ function RekamMedisContent() {
     return resolveDoctorNames(raw);
   }, [uid]);
 
-  // Sengaja TANPA cacheKey: data kesehatan pribadi tidak boleh disimpan di
-  // perangkat (sejalan dengan F6: rekam medis tidak di-cache offline).
+  // Dibaca di browser (butuh sesi) dan tidak disimpan di perangkat, sejalan
+  // dengan F6: rekam medis tidak di-cache offline.
   const { status, data: records, retry } = useLoad(loadRecords);
   const [signingOut, setSigningOut] = useState(false);
 

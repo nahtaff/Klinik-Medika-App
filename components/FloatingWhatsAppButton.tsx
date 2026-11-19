@@ -1,24 +1,20 @@
-"use client";
-
-import { loadContactInfo } from "@/lib/firestore";
 import { isFilled } from "@/lib/text";
-import { useLoad } from "@/lib/useLoad";
 import { WhatsAppIcon } from "@/components/icons";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
-// Muncul di semua halaman (dirender dari root layout). Kalau nomor
-// WhatsApp belum ada / gagal dimuat, tombol cukup tidak muncul —
-// ini elemen pelengkap, bukan konten inti yang butuh error/empty state.
-export default function FloatingWhatsAppButton() {
-  const { data: contact } = useLoad(loadContactInfo, "contact_info");
-  const nomorWhatsapp = contact?.nomor_whatsapp;
-
+// Muncul di semua halaman; nomornya dibaca root layout di server. Kalau nomor
+// WhatsApp belum ada / gagal dimuat, tombol cukup tidak muncul — ini elemen
+// pelengkap, bukan konten inti yang butuh error/empty state.
+export default function FloatingWhatsAppButton({
+  nomorWhatsapp,
+}: {
+  nomorWhatsapp: string | undefined;
+}) {
   if (!isFilled(nomorWhatsapp)) return null;
 
   // bottom-24 supaya mengambang di atas bottom navbar, tidak bertabrakan.
-  // Padding kiri/kanan tetap interpretar viewport (bukan container konten),
-  // supaya di layar lebar tombol nempel di pojok kanan bawah, bukan melayang
-  // jauh di tengah halaman.
+  // Padding kiri/kanan mengikuti viewport (bukan container konten), supaya di
+  // layar lebar tombol menempel di pojok kanan bawah, bukan melayang di tengah.
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex justify-end px-5 md:px-6">
       <a

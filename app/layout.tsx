@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { loadContactInfo } from "@/lib/firestore";
 import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 import { BottomNav } from "@/components/BottomNav";
 import { TopBar } from "@/components/TopBar";
@@ -39,7 +40,20 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+// Semua halaman dirender di server dan di-cache (ISR): data Firestore sudah
+// ada di HTML, jadi tidak menunggu JS + request dari browser (LCP), dan
+// halaman yang disimpan service worker tetap berisi saat offline. Dibuat
+// ulang di latar belakang paling cepat tiap 60 detik: pengunjung pertama
+// setelah data diubah di Console masih melihat versi lama, berikutnya yang baru.
+export const revalidate = 60;
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Tombol WhatsApp hanya pelengkap: kalau gagal dimuat, sembunyikan saja.
+  const contact = await loadContactInfo().catch((error) => {
+    console.error("Gagal memuat nomor WhatsApp:", error);
+    return null;
+  });
+
   return (
     <html
       lang="id"
@@ -48,7 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
         <TopBar />
         <div className="flex flex-1 flex-col pb-32">{children}</div>
-        <FloatingWhatsAppButton />
+        <FloatingWhatsAppButton nomorWhatsapp={contact?.nomor_whatsapp} />
         <BottomNav />
         <ServiceWorkerRegister />
       </body>

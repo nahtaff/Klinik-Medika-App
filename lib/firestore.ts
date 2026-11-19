@@ -29,8 +29,7 @@ export interface ContactInfo {
   layanan?: string[];
 }
 
-// Dipakai Beranda dan Jadwal (di server) serta tombol WhatsApp (di browser,
-// lewat useLoad dengan cacheKey "contact_info").
+// Dipakai di server: root layout (tombol WhatsApp), Beranda, dan Jadwal.
 export async function loadContactInfo(): Promise<ContactInfo | null> {
   const snapshot = await getDocs(
     query(collection(db, "contact_info"), limit(1))

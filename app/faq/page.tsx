@@ -6,9 +6,6 @@ import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/StatusStates";
 import { ChevronDownIcon, QuestionMarkIcon } from "@/components/icons";
 
-// Dirender di server dan di-cache (ISR), sama seperti Beranda.
-export const revalidate = 60;
-
 async function loadFaqs(): Promise<Faq[] | null> {
   const snapshot = await getDocs(collection(db, "config_faq"));
   const items = snapshot.docs
