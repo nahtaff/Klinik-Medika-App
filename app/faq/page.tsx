@@ -3,51 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { collection, getDocs } from "firebase/firestore/lite";
 import { db } from "@/lib/firestore";
+import { groupByKategori, type Faq } from "@/lib/faq";
 import { Card } from "@/components/Card";
 import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
 import { ChevronDownIcon, QuestionMarkIcon } from "@/components/icons";
-
-interface Faq {
-  id: string;
-  pertanyaan?: string;
-  jawaban?: string;
-  kategori?: string;
-  urutan?: number;
-}
-
-interface FaqGroup {
-  kategori: string;
-  items: Faq[];
-}
 
 type Status = "loading" | "success" | "empty" | "error";
 
 function isFilled(value: string | undefined | null): value is string {
   return typeof value === "string" && value.trim().length > 0;
-}
-
-function groupByKategori(faqs: Faq[]): FaqGroup[] {
-  const sorted = [...faqs].sort(
-    (a, b) =>
-      (a.urutan ?? Number.MAX_SAFE_INTEGER) -
-      (b.urutan ?? Number.MAX_SAFE_INTEGER)
-  );
-
-  const groups: FaqGroup[] = [];
-  const indexByKategori = new Map<string, number>();
-
-  for (const faq of sorted) {
-    const kategori = isFilled(faq.kategori) ? faq.kategori : "Lainnya";
-    let index = indexByKategori.get(kategori);
-    if (index === undefined) {
-      index = groups.length;
-      indexByKategori.set(kategori, index);
-      groups.push({ kategori, items: [] });
-    }
-    groups[index].items.push(faq);
-  }
-
-  return groups;
 }
 
 export default function FaqPage() {
