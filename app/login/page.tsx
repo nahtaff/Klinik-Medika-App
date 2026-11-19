@@ -12,7 +12,7 @@ import { normalizeIndonesianPhone } from "@/lib/phone";
 import { useAuth } from "@/components/AuthProvider";
 
 type Step = "phone" | "otp";
-type ActionStatus = "idle" | "loading";
+type ActionStatus = "idle" | "sending" | "verifying";
 
 const OTP_SEND_TIMEOUT_MS = 20000;
 
@@ -72,6 +72,7 @@ export default function LoginPage() {
   const [otpInput, setOtpInput] = useState("");
   const [actionStatus, setActionStatus] = useState<ActionStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [confirmedPhone, setConfirmedPhone] = useState<string | null>(null);
 
   const confirmationResultRef = useRef<ConfirmationResult | null>(null);
@@ -99,20 +100,12 @@ export default function LoginPage() {
     recaptchaVerifierRef.current = null;
   }, []);
 
-  const handleSendOtp = useCallback(
-    async (event: FormEvent) => {
-      event.preventDefault();
-      setErrorMessage(null);
-
-      const normalized = normalizeIndonesianPhone(phoneInput);
-      if (!normalized) {
-        setErrorMessage(
-          "Nomor HP tidak valid. Gunakan format 08xxxxxxxxxx atau +62xxxxxxxxxx."
-        );
-        return; // OTP tidak dikirim.
-      }
-
-      setActionStatus("loading");
+  // Dipakai untuk kirim pertama dan "Kirim ulang kode". Verifier yang sama
+  // aman dipakai ulang setelah sukses: signInWithPhoneNumber me-reset
+  // widget-nya sendiri. Mengembalikan true kalau SMS terkirim.
+  const sendOtp = useCallback(
+    async (normalized: string): Promise<boolean> => {
+      setActionStatus("sending");
       try {
         if (!recaptchaVerifierRef.current) {
           recaptchaVerifierRef.current = new RecaptchaVerifier(
@@ -125,27 +118,57 @@ export default function LoginPage() {
           signInWithPhoneNumber(auth, normalized, recaptchaVerifierRef.current),
           OTP_SEND_TIMEOUT_MS
         );
-        if (!mountedRef.current) return;
+        if (!mountedRef.current) return false;
         confirmationResultRef.current = result;
         setConfirmedPhone(normalized);
         setStep("otp");
         setActionStatus("idle");
+        return true;
       } catch (error) {
-        if (!mountedRef.current) return;
+        if (!mountedRef.current) return false;
         console.error("Gagal mengirim OTP:", error);
         setErrorMessage(mapAuthError(error));
         setActionStatus("idle");
         // Widget reCAPTCHA yang sudah dipakai butuh instance baru untuk retry.
         resetRecaptcha();
+        return false;
       }
     },
-    [phoneInput, resetRecaptcha]
+    [resetRecaptcha]
   );
+
+  const handleSendOtp = useCallback(
+    (event: FormEvent) => {
+      event.preventDefault();
+      setErrorMessage(null);
+
+      const normalized = normalizeIndonesianPhone(phoneInput);
+      if (!normalized) {
+        setErrorMessage(
+          "Nomor HP tidak valid. Gunakan format 08xxxxxxxxxx atau +62xxxxxxxxxx."
+        );
+        return; // OTP tidak dikirim.
+      }
+      void sendOtp(normalized);
+    },
+    [phoneInput, sendOtp]
+  );
+
+  const handleResendOtp = useCallback(async () => {
+    if (!confirmedPhone) return;
+    setErrorMessage(null);
+    setInfoMessage(null);
+    setOtpInput("");
+    if (await sendOtp(confirmedPhone)) {
+      setInfoMessage("Kode baru sudah dikirim.");
+    }
+  }, [confirmedPhone, sendOtp]);
 
   const handleVerifyOtp = useCallback(
     async (event: FormEvent) => {
       event.preventDefault();
       setErrorMessage(null);
+      setInfoMessage(null);
 
       const code = otpInput.trim();
       if (!/^\d{6}$/.test(code)) {
@@ -153,11 +176,11 @@ export default function LoginPage() {
         return;
       }
       if (!confirmationResultRef.current) {
-        setErrorMessage("Sesi verifikasi tidak ditemukan. Kirim ulang OTP.");
+        setErrorMessage("Sesi verifikasi tidak ditemukan. Kirim ulang kode.");
         return;
       }
 
-      setActionStatus("loading");
+      setActionStatus("verifying");
       try {
         await confirmationResultRef.current.confirm(code);
         if (!mountedRef.current) return;
@@ -178,6 +201,7 @@ export default function LoginPage() {
     setStep("phone");
     setOtpInput("");
     setErrorMessage(null);
+    setInfoMessage(null);
     confirmationResultRef.current = null;
     resetRecaptcha();
   }, [resetRecaptcha]);
@@ -213,10 +237,11 @@ export default function LoginPage() {
               placeholder="08xxxxxxxxxx"
               value={phoneInput}
               onChange={(e) => setPhoneInput(e.target.value)}
-              disabled={actionStatus === "loading"}
-              className="rounded-xl border border-foreground/15 px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              disabled={actionStatus !== "idle"}
+              // text-base (16px): below that, iOS Safari zooms in on focus
+              className="rounded-xl border border-foreground/50 px-3 py-2.5 text-base text-foreground outline-none focus:border-primary"
             />
-            <p className="text-xs text-foreground/50">
+            <p className="text-xs text-foreground/60">
               Format: 08xxxxxxxxxx atau +62xxxxxxxxxx
             </p>
           </div>
@@ -229,10 +254,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={actionStatus === "loading"}
+            disabled={actionStatus !== "idle"}
             className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
-            {actionStatus === "loading" ? "Mengirim..." : "Kirim Kode OTP"}
+            {actionStatus === "sending" ? "Mengirim..." : "Kirim Kode OTP"}
           </button>
         </form>
       )}
@@ -246,7 +271,7 @@ export default function LoginPage() {
             <label htmlFor="otp" className="text-sm font-medium text-foreground">
               Kode OTP
             </label>
-            <p className="text-xs text-foreground/50">
+            <p className="text-xs text-foreground/60">
               Kode 6 digit dikirim via SMS ke {confirmedPhone}.
             </p>
             <input
@@ -260,8 +285,8 @@ export default function LoginPage() {
               onChange={(e) =>
                 setOtpInput(e.target.value.replace(/\D/g, "").slice(0, 6))
               }
-              disabled={actionStatus === "loading"}
-              className="rounded-xl border border-foreground/15 px-3 py-2.5 text-center text-lg tracking-[0.5em] text-foreground outline-none focus:border-primary"
+              disabled={actionStatus !== "idle"}
+              className="rounded-xl border border-foreground/50 px-3 py-2.5 text-center text-lg tracking-[0.5em] text-foreground outline-none focus:border-primary"
             />
           </div>
 
@@ -271,22 +296,38 @@ export default function LoginPage() {
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={actionStatus === "loading"}
-            className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-          >
-            {actionStatus === "loading" ? "Memverifikasi..." : "Verifikasi"}
-          </button>
+          {infoMessage && (
+            <p role="status" className="text-sm text-primary">
+              {infoMessage}
+            </p>
+          )}
 
           <button
-            type="button"
-            onClick={handleGantiNomor}
-            disabled={actionStatus === "loading"}
-            className="text-sm font-medium text-foreground/60 hover:text-primary"
+            type="submit"
+            disabled={actionStatus !== "idle"}
+            className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
-            Ganti nomor HP
+            {actionStatus === "verifying" ? "Memverifikasi..." : "Verifikasi"}
           </button>
+
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              disabled={actionStatus !== "idle"}
+              className="text-sm font-medium text-foreground/60 hover:text-primary"
+            >
+              {actionStatus === "sending" ? "Mengirim..." : "Kirim ulang kode"}
+            </button>
+            <button
+              type="button"
+              onClick={handleGantiNomor}
+              disabled={actionStatus !== "idle"}
+              className="text-sm font-medium text-foreground/60 hover:text-primary"
+            >
+              Ganti nomor HP
+            </button>
+          </div>
         </form>
       )}
 
