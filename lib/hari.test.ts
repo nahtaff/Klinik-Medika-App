@@ -39,15 +39,22 @@ describe("hariIniKey", () => {
     vi.useRealTimers();
   });
 
-  it("memetakan hari Minggu (getDay 0) ke minggu", () => {
+  it("memetakan hari Minggu ke minggu", () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2026, 10, 22, 12)); // Minggu, 22 Nov 2026
+    vi.setSystemTime(new Date("2026-11-22T12:00:00+07:00")); // Minggu siang WIB
     expect(hariIniKey()).toBe("minggu");
   });
 
   it("memetakan hari Senin ke senin", () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2026, 10, 23, 12)); // Senin, 23 Nov 2026
+    vi.setSystemTime(new Date("2026-11-23T12:00:00+07:00")); // Senin siang WIB
+    expect(hariIniKey()).toBe("senin");
+  });
+
+  it("memakai hari di WIB, bukan zona waktu server", () => {
+    // Server Vercel berjalan di UTC: Minggu 20:00 UTC sudah Senin 03:00 WIB.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(Date.UTC(2026, 10, 22, 20)));
     expect(hariIniKey()).toBe("senin");
   });
 });
@@ -61,13 +68,13 @@ describe("statusHariIni", () => {
 
   it("menampilkan jam buka kalau hari ini ada di jadwal", () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2026, 10, 23, 12)); // Senin
+    vi.setSystemTime(new Date("2026-11-23T12:00:00+07:00")); // Senin siang WIB
     expect(statusHariIni(jamOperasional)).toBe("Hari ini buka, 08:00 - 17:00");
   });
 
   it("menyatakan tutup kalau hari ini tidak ada di jadwal", () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2026, 10, 22, 12)); // Minggu
+    vi.setSystemTime(new Date("2026-11-22T12:00:00+07:00")); // Minggu siang WIB
     expect(statusHariIni(jamOperasional)).toBe("Hari ini tutup");
   });
 

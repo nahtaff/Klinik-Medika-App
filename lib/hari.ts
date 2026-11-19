@@ -41,19 +41,24 @@ export function mapByHari(
   return byHari;
 }
 
-// getDay(): 0 = Minggu ... 6 = Sabtu
-const JS_DAY_TO_HARI: Hari[] = [
-  "minggu",
-  "senin",
-  "selasa",
-  "rabu",
-  "kamis",
-  "jumat",
-  "sabtu",
-];
+// Hari dihitung di WIB, bukan zona waktu mesin: halaman publik juga dirender
+// di server Vercel yang berjalan di UTC (07:00 WIB lebih awal).
+const HARI_WIB = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  timeZone: "Asia/Jakarta",
+});
+const EN_TO_HARI: Record<string, Hari> = {
+  Sun: "minggu",
+  Mon: "senin",
+  Tue: "selasa",
+  Wed: "rabu",
+  Thu: "kamis",
+  Fri: "jumat",
+  Sat: "sabtu",
+};
 
 export function hariIniKey(): Hari {
-  return JS_DAY_TO_HARI[new Date().getDay()];
+  return EN_TO_HARI[HARI_WIB.format(new Date())];
 }
 
 // Jawaban pertama yang dicari pasien di Beranda: "hari ini buka jam berapa?".
