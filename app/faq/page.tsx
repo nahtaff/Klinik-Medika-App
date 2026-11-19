@@ -17,7 +17,6 @@ function isFilled(value: string | undefined | null): value is string {
 export default function FaqPage() {
   const [status, setStatus] = useState<Status>("loading");
   const [faqs, setFaqs] = useState<Faq[]>([]);
-  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -57,18 +56,6 @@ export default function FaqPage() {
     fetchFaqs();
   }, [fetchFaqs]);
 
-  const toggleFaq = useCallback((id: string) => {
-    setOpenIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
-
   const groups = groupByKategori(faqs);
 
   return (
@@ -97,15 +84,11 @@ export default function FaqPage() {
               key={group.kategori}
               title={group.kategori}
               icon={<QuestionMarkIcon />}
+              headingLevel={2}
             >
               <div className="flex flex-col divide-y divide-foreground/10">
                 {group.items.map((faq) => (
-                  <AccordionItem
-                    key={faq.id}
-                    faq={faq}
-                    isOpen={openIds.has(faq.id)}
-                    onToggle={() => toggleFaq(faq.id)}
-                  />
+                  <AccordionItem key={faq.id} faq={faq} />
                 ))}
               </div>
             </Card>
@@ -116,38 +99,20 @@ export default function FaqPage() {
   );
 }
 
-function AccordionItem({
-  faq,
-  isOpen,
-  onToggle,
-}: {
-  faq: Faq;
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
-  const panelId = `faq-jawaban-${faq.id}`;
-
+// Native <details>: buka/tutup tanpa state React, jalan tanpa JavaScript, dan
+// jawaban yang tertutup tetap bisa ditemukan lewat "Cari di halaman".
+// Chevron di depan teks (bukan di ujung kanan) supaya mudah dikaitkan dengan
+// pertanyaannya, terutama bagi pengguna kaca pembesar layar.
+function AccordionItem({ faq }: { faq: Faq }) {
   return (
-    <div>
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={isOpen}
-        aria-controls={panelId}
-        className="flex w-full items-center justify-between gap-3 py-3 text-left text-sm font-medium text-foreground"
-      >
-        <span>{faq.pertanyaan}</span>
-        <ChevronDownIcon
-          className={`text-foreground/50 transition-transform ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      {isOpen && (
-        <div id={panelId} className="pb-3 text-sm leading-6 text-foreground/70">
-          {faq.jawaban}
-        </div>
-      )}
-    </div>
+    <details className="group">
+      <summary className="flex cursor-pointer list-none items-start gap-2 py-3 text-sm font-medium text-foreground [&::-webkit-details-marker]:hidden">
+        <ChevronDownIcon className="mt-0.5 -rotate-90 text-foreground/50 group-open:rotate-0 motion-safe:transition-transform" />
+        {faq.pertanyaan}
+      </summary>
+      <div className="pb-3 pl-6 text-sm leading-6 text-foreground/70">
+        {faq.jawaban}
+      </div>
+    </details>
   );
 }
