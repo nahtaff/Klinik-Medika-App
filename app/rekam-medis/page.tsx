@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   collection,
   getDoc,
@@ -13,6 +13,8 @@ import {
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/firestore";
+import { isFilled } from "@/lib/text";
+import { useLoad } from "@/lib/useLoad";
 import { useAuth } from "@/components/AuthProvider";
 import { RequireAuth } from "@/components/RequireAuth";
 import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
@@ -27,12 +29,6 @@ interface MedicalRecord {
   resep_obat?: string;
   catatan?: string;
   dokterNama?: string;
-}
-
-type Status = "loading" | "success" | "empty" | "error";
-
-function isFilled(value: string | undefined | null): value is string {
-  return typeof value === "string" && value.trim().length > 0;
 }
 
 const tanggalFormatter = new Intl.DateTimeFormat("id-ID", {
@@ -80,60 +76,30 @@ function RekamMedisContent() {
   const { user } = useAuth();
   const uid = user?.uid;
 
-  const [status, setStatus] = useState<Status>("loading");
-  const [records, setRecords] = useState<MedicalRecord[]>([]);
-  const [signingOut, setSigningOut] = useState(false);
-  const mountedRef = useRef(true);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
   // Selalu pakai uid dari sesi — tidak pernah hardcode. Security Rules
   // menjamin hanya users/{uid} milik pemanggil yang bisa dibaca, jadi ini
   // tidak mungkin menampilkan riwayat pasien lain.
-  const fetchRecords = useCallback(async () => {
-    if (!uid) return;
-    try {
-      const snapshot = await getDocs(
-        query(
-          collection(db, "users", uid, "medical_records"),
-          orderBy("tanggal_kunjungan", "desc")
-        )
-      );
-      if (!mountedRef.current) return;
+  const loadRecords = useCallback(async (): Promise<MedicalRecord[] | null> => {
+    if (!uid) throw new Error("Sesi pasien tidak ditemukan");
+    const snapshot = await getDocs(
+      query(
+        collection(db, "users", uid, "medical_records"),
+        orderBy("tanggal_kunjungan", "desc")
+      )
+    );
+    if (snapshot.empty) return null;
 
-      if (snapshot.empty) {
-        setStatus("empty");
-        return;
-      }
-
-      const raw: MedicalRecord[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<MedicalRecord, "id" | "dokterNama">),
-      }));
-      const resolved = await resolveDoctorNames(raw);
-      if (!mountedRef.current) return;
-
-      setRecords(resolved);
-      setStatus("success");
-    } catch (error) {
-      console.error("Gagal memuat rekam medis:", error);
-      if (mountedRef.current) setStatus("error");
-    }
+    const raw: MedicalRecord[] = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<MedicalRecord, "id" | "dokterNama">),
+    }));
+    return resolveDoctorNames(raw);
   }, [uid]);
 
-  useEffect(() => {
-    fetchRecords();
-  }, [fetchRecords]);
-
-  const handleRetry = useCallback(() => {
-    setStatus("loading");
-    fetchRecords();
-  }, [fetchRecords]);
+  // Sengaja TANPA cacheKey: data kesehatan pribadi tidak boleh disimpan di
+  // perangkat (sejalan dengan F6: rekam medis tidak di-cache offline).
+  const { status, data: records, retry } = useLoad(loadRecords);
+  const [signingOut, setSigningOut] = useState(false);
 
   const handleLogout = useCallback(async () => {
     setSigningOut(true);
@@ -162,13 +128,15 @@ function RekamMedisContent() {
       {status === "error" && (
         <ErrorState
           message="Gagal memuat rekam medis. Periksa koneksi internet Anda."
-          onRetry={handleRetry}
+          onRetry={retry}
         />
       )}
       {status === "empty" && (
         <EmptyState message="Anda belum memiliki riwayat kunjungan." />
       )}
-      {status === "success" && <MedicalTimeline records={records} />}
+      {status === "success" && records && (
+        <MedicalTimeline records={records} />
+      )}
 
       <button
         type="button"

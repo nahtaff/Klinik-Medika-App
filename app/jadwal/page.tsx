@@ -1,13 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
 import { collection, getDocs, limit, query } from "firebase/firestore/lite";
-import { db } from "@/lib/firestore";
+import { db, loadContactInfo } from "@/lib/firestore";
 import { HARI_LABEL, HARI_URUTAN, hariIniKey } from "@/lib/hari";
 import { groupJadwalByHari, type JadwalEntry } from "@/lib/jadwal";
+import { isFilled } from "@/lib/text";
+import { useLoad } from "@/lib/useLoad";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Card } from "@/components/Card";
-import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
+import {
+  EmptyState,
+  ErrorState,
+  Skeleton,
+  StaleNotice,
+} from "@/components/StatusStates";
 import { ClockIcon, PersonIcon, WhatsAppIcon } from "@/components/icons";
 
 interface Doctor {
@@ -17,65 +23,28 @@ interface Doctor {
   jadwal_praktik?: JadwalEntry[];
 }
 
-type Status = "loading" | "success" | "empty" | "error";
-
-function isFilled(value: string | undefined | null): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
 function daySeparatorClass(index: number): string {
   return index < 2 ? "" : "md:border-t border-foreground/10";
 }
 
+// Klinik satu dokter → ambil satu dokumen saja, tidak ada pemilihan dokter.
+async function loadJadwal(): Promise<{
+  doctor: Doctor;
+  whatsapp?: string;
+} | null> {
+  const [doctorSnap, contact] = await Promise.all([
+    getDocs(query(collection(db, "doctors"), limit(1))),
+    loadContactInfo(),
+  ]);
+  if (doctorSnap.empty) return null;
+  return {
+    doctor: doctorSnap.docs[0].data() as Doctor,
+    whatsapp: contact?.nomor_whatsapp,
+  };
+}
+
 export default function JadwalDokter() {
-  const [status, setStatus] = useState<Status>("loading");
-  const [doctor, setDoctor] = useState<Doctor | null>(null);
-  const [whatsapp, setWhatsapp] = useState<string | undefined>(undefined);
-  const mountedRef = useRef(true);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  // Klinik satu dokter → ambil satu dokumen saja, tidak ada pemilihan dokter.
-  const fetchJadwal = useCallback(async () => {
-    try {
-      const [doctorSnap, contactSnap] = await Promise.all([
-        getDocs(query(collection(db, "doctors"), limit(1))),
-        getDocs(query(collection(db, "contact_info"), limit(1))),
-      ]);
-      if (!mountedRef.current) return;
-
-      if (!contactSnap.empty) {
-        const contact = contactSnap.docs[0].data() as {
-          nomor_whatsapp?: string;
-        };
-        setWhatsapp(contact.nomor_whatsapp);
-      }
-
-      if (doctorSnap.empty) {
-        setStatus("empty");
-        return;
-      }
-      setDoctor(doctorSnap.docs[0].data() as Doctor);
-      setStatus("success");
-    } catch (error) {
-      console.error("Gagal memuat jadwal dokter:", error);
-      if (mountedRef.current) setStatus("error");
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchJadwal();
-  }, [fetchJadwal]);
-
-  const handleRetry = useCallback(() => {
-    setStatus("loading");
-    fetchJadwal();
-  }, [fetchJadwal]);
+  const { status, data, stale, retry } = useLoad(loadJadwal, "jadwal");
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
@@ -94,14 +63,17 @@ export default function JadwalDokter() {
       {status === "error" && (
         <ErrorState
           message="Gagal memuat jadwal dokter. Periksa koneksi internet Anda."
-          onRetry={handleRetry}
+          onRetry={retry}
         />
       )}
       {status === "empty" && (
         <EmptyState message="Data dokter belum tersedia." />
       )}
-      {status === "success" && doctor && (
-        <JadwalContent doctor={doctor} whatsapp={whatsapp} />
+      {status === "success" && data && (
+        <>
+          {stale && <StaleNotice />}
+          <JadwalContent doctor={data.doctor} whatsapp={data.whatsapp} />
+        </>
       )}
     </main>
   );

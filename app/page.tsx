@@ -1,12 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { collection, getDocs, limit, query } from "firebase/firestore/lite";
-import { db } from "@/lib/firestore";
+import { loadContactInfo, type ContactInfo } from "@/lib/firestore";
 import { HARI_LABEL, HARI_URUTAN, mapByHari } from "@/lib/hari";
+import { isFilled } from "@/lib/text";
+import { useLoad } from "@/lib/useLoad";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Card } from "@/components/Card";
-import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
+import {
+  EmptyState,
+  ErrorState,
+  Skeleton,
+  StaleNotice,
+} from "@/components/StatusStates";
 import {
   CheckIcon,
   ClockIcon,
@@ -19,61 +24,13 @@ import {
 import { NotificationSetup } from "@/components/NotificationSetup";
 import { QuickAccessGrid } from "@/components/QuickAccessGrid";
 
-interface ContactInfo {
-  nama_klinik?: string;
-  alamat?: string;
-  nomor_whatsapp?: string;
-  nomor_telepon?: string;
-  jam_operasional?: Record<string, string>;
-  layanan?: string[];
-}
-
-type Status = "loading" | "success" | "empty" | "error";
-
-function isFilled(value: string | undefined | null): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
 export default function Home() {
-  const [status, setStatus] = useState<Status>("loading");
-  const [info, setInfo] = useState<ContactInfo | null>(null);
-  const mountedRef = useRef(true);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  // getDocs tidak menerima AbortSignal, jadi request-nya tidak bisa
-  // dibatalkan beneran — cukup abaikan hasilnya kalau sudah unmount.
-  const fetchContactInfo = useCallback(async () => {
-    try {
-      const snapshot = await getDocs(
-        query(collection(db, "contact_info"), limit(1))
-      );
-      if (!mountedRef.current) return;
-      if (snapshot.empty) {
-        setStatus("empty");
-        return;
-      }
-      setInfo(snapshot.docs[0].data() as ContactInfo);
-      setStatus("success");
-    } catch (error) {
-      console.error("Gagal memuat contact_info:", error);
-      if (mountedRef.current) setStatus("error");
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchContactInfo();
-  }, [fetchContactInfo]);
-
-  const handleRetry = useCallback(() => {
-    setStatus("loading");
-    fetchContactInfo();
-  }, [fetchContactInfo]);
+  const {
+    status,
+    data: info,
+    stale,
+    retry,
+  } = useLoad(loadContactInfo, "contact_info");
 
   // Lebar konten (NFR-02): mobile <640px tetap ramping seperti semula
   // (max-w-md / sm:max-w-lg), melebar bertahap di tablet (md:max-w-2xl),
@@ -88,6 +45,8 @@ export default function Home() {
         <h2 className="font-heading text-lg font-semibold text-foreground">
           Informasi Klinik
         </h2>
+
+        {stale && <StaleNotice />}
 
         <div
           className={
@@ -104,7 +63,7 @@ export default function Home() {
           {status === "error" && (
             <ErrorState
               message="Gagal memuat informasi klinik. Periksa koneksi internet Anda."
-              onRetry={handleRetry}
+              onRetry={retry}
             />
           )}
           {status === "empty" && (

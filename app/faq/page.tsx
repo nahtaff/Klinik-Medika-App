@@ -1,62 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
 import { collection, getDocs } from "firebase/firestore/lite";
 import { db } from "@/lib/firestore";
 import { groupByKategori, type Faq } from "@/lib/faq";
+import { isFilled } from "@/lib/text";
+import { useLoad } from "@/lib/useLoad";
 import { Card } from "@/components/Card";
-import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
+import {
+  EmptyState,
+  ErrorState,
+  Skeleton,
+  StaleNotice,
+} from "@/components/StatusStates";
 import { ChevronDownIcon, QuestionMarkIcon } from "@/components/icons";
 
-type Status = "loading" | "success" | "empty" | "error";
-
-function isFilled(value: string | undefined | null): value is string {
-  return typeof value === "string" && value.trim().length > 0;
+async function loadFaqs(): Promise<Faq[] | null> {
+  const snapshot = await getDocs(collection(db, "config_faq"));
+  const items = snapshot.docs
+    .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Faq, "id">) }))
+    .filter((faq) => isFilled(faq.pertanyaan) && isFilled(faq.jawaban));
+  return items.length > 0 ? items : null;
 }
 
 export default function FaqPage() {
-  const [status, setStatus] = useState<Status>("loading");
-  const [faqs, setFaqs] = useState<Faq[]>([]);
-  const mountedRef = useRef(true);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  const fetchFaqs = useCallback(async () => {
-    try {
-      const snapshot = await getDocs(collection(db, "config_faq"));
-      if (!mountedRef.current) return;
-
-      const items = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Faq, "id">) }))
-        .filter((faq) => isFilled(faq.pertanyaan) && isFilled(faq.jawaban));
-
-      if (items.length === 0) {
-        setStatus("empty");
-        return;
-      }
-      setFaqs(items);
-      setStatus("success");
-    } catch (error) {
-      console.error("Gagal memuat config_faq:", error);
-      if (mountedRef.current) setStatus("error");
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchFaqs();
-  }, [fetchFaqs]);
-
-  const handleRetry = useCallback(() => {
-    setStatus("loading");
-    fetchFaqs();
-  }, [fetchFaqs]);
-
-  const groups = groupByKategori(faqs);
+  const { status, data: faqs, stale, retry } = useLoad(loadFaqs, "faq");
+  const groups = groupByKategori(faqs ?? []);
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 py-6 sm:max-w-lg sm:px-6 md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
@@ -73,10 +41,11 @@ export default function FaqPage() {
       {status === "error" && (
         <ErrorState
           message="Gagal memuat FAQ. Periksa koneksi internet Anda."
-          onRetry={handleRetry}
+          onRetry={retry}
         />
       )}
       {status === "empty" && <EmptyState message="Belum ada FAQ tersedia." />}
+      {status === "success" && stale && <StaleNotice />}
       {status === "success" && (
         <div className="flex flex-col gap-4">
           {groups.map((group) => (
