@@ -4,17 +4,16 @@
 //
 // Catatan: jangan import modul ini dari komponen di root layout atau halaman
 // publik, karena itu menarik `firebase/auth` kembali ke semua halaman.
-import { browserSessionPersistence, getAuth, setPersistence } from "firebase/auth";
+import { browserSessionPersistence, initializeAuth } from "firebase/auth";
 import { app } from "@/lib/firebase";
 
-export const auth = getAuth(app);
-
-// Sesi hanya hidup selama tab/app terbuka (sessionStorage), bukan selamanya
-// (default IndexedDB): rekam medis tidak boleh tetap terbuka bagi orang
-// berikutnya di HP yang dipakai bersama. Konsekuensinya pasien OTP ulang
-// tiap membuka app. Sesi lama di IndexedDB ikut dipindahkan, tidak hilang.
-if (typeof window !== "undefined") {
-  setPersistence(auth, browserSessionPersistence).catch((error) => {
-    console.error("Gagal mengatur masa berlaku sesi:", error);
-  });
-}
+// initializeAuth, bukan getAuth: getAuth ikut memasang login popup/redirect,
+// yang di browser HP lebih dulu memuat apis.google.com + iframe firebaseapp.com
+// (~1 detik) sebelum status login diketahui. App ini hanya memakai OTP.
+//
+// Sesi hanya hidup selama tab/app terbuka (sessionStorage), bukan selamanya:
+// rekam medis tidak boleh tetap terbuka bagi orang berikutnya di HP yang
+// dipakai bersama. Konsekuensinya pasien OTP ulang tiap membuka app.
+export const auth = initializeAuth(app, {
+  persistence: browserSessionPersistence,
+});

@@ -41,8 +41,8 @@ export function BottomNav() {
       // masuk, jadi navigasi tidak perlu memuat firebase/auth di semua
       // halaman. Item tetap aktif di /login karena itu gerbangnya.
       href: "/rekam-medis",
-      // Prefetch menjalankan chunk halaman itu, yang memuat firebase/auth dan
-      // script apis.google.com di setiap halaman publik. Cukup unduh saat diketuk.
+      // Prefetch menjalankan chunk halaman itu, yang memuat firebase/auth di
+      // setiap halaman publik. Cukup unduh saat diketuk.
       prefetch: false,
       icon: DocumentIcon,
       isActive: (p) => p.startsWith("/rekam-medis") || p.startsWith("/login"),
