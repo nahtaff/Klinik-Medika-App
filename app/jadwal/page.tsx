@@ -139,6 +139,23 @@ function JadwalContent({
             />
           </div>
         )}
+
+        {/* Baris, bukan tombol hijau, seperti di mockup: hijau WhatsApp
+            terlalu terang untuk teks putih (1.98:1). */}
+        {hasWhatsapp && (
+          <a
+            href={buildWhatsAppLink(
+              whatsapp!,
+              "Halo, saya ingin membuat janji temu"
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 flex min-h-11 items-center gap-2 border-t border-foreground/10 pt-3 text-sm font-semibold text-foreground underline-offset-4 hover:underline"
+          >
+            <WhatsAppIcon className="h-5 w-5 shrink-0 text-whatsapp" />
+            Hubungi via WhatsApp untuk janji temu
+          </a>
+        )}
       </section>
 
       <Card title="Jadwal Praktik" icon={<ClockIcon />}>
@@ -179,21 +196,6 @@ function JadwalContent({
           </p>
         )}
       </Card>
-
-      {hasWhatsapp && (
-        <a
-          href={buildWhatsAppLink(
-            whatsapp!,
-            "Halo, saya ingin membuat janji temu"
-          )}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 rounded-full bg-whatsapp px-4 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-90"
-        >
-          <WhatsAppIcon />
-          Hubungi via WhatsApp untuk janji temu
-        </a>
-      )}
     </div>
   );
 }

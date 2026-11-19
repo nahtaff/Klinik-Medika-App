@@ -9,8 +9,9 @@
   --primary: #0f766e;
   --primary-foreground: #ffffff;
   --brand: #0ea5a4;
-  /* WhatsApp's own dark green: #25d366 is 1.98:1 under white text. */
-  --whatsapp: #075e54;
+  /* WhatsApp green from the mockup. White on it is only 1.98:1, so use it
+     under dark ink (9:1) or for icons sitting next to a text label. */
+  --whatsapp: #25d366;
 }
 
 @theme inline {
