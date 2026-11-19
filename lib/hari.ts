@@ -55,3 +55,14 @@ const JS_DAY_TO_HARI: Hari[] = [
 export function hariIniKey(): Hari {
   return JS_DAY_TO_HARI[new Date().getDay()];
 }
+
+// Jawaban pertama yang dicari pasien di Beranda: "hari ini buka jam berapa?".
+// null kalau jam operasional belum diisi, supaya tidak salah bilang "tutup".
+export function statusHariIni(
+  jamOperasional: Record<string, string | undefined> | undefined
+): string | null {
+  const jamByHari = mapByHari(jamOperasional);
+  if (jamByHari.size === 0) return null;
+  const jam = jamByHari.get(hariIniKey());
+  return jam ? `Hari ini buka, ${jam}` : "Hari ini tutup";
+}

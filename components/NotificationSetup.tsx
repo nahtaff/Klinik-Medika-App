@@ -113,9 +113,9 @@ export function NotificationSetup() {
 
   return (
     <section className="rounded-2xl border border-foreground/10 bg-white p-4 shadow-sm">
-      <h3 className="font-heading text-sm font-semibold text-foreground">
+      <h2 className="font-heading text-sm font-semibold text-foreground">
         Notifikasi
-      </h3>
+      </h2>
       <p className="mt-1 text-sm text-foreground/60">
         Aktifkan notifikasi untuk menerima pengingat dari klinik.
       </p>

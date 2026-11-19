@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { hariIniKey, mapByHari, normalizeHari } from "./hari";
+import { hariIniKey, mapByHari, normalizeHari, statusHariIni } from "./hari";
 
 describe("normalizeHari", () => {
   it("menerima nama hari dengan huruf besar dan spasi", () => {
@@ -49,5 +49,30 @@ describe("hariIniKey", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 10, 23, 12)); // Senin, 23 Nov 2026
     expect(hariIniKey()).toBe("senin");
+  });
+});
+
+describe("statusHariIni", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const jamOperasional = { Senin: "08:00 - 17:00", Selasa: "08:00 - 17:00" };
+
+  it("menampilkan jam buka kalau hari ini ada di jadwal", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 10, 23, 12)); // Senin
+    expect(statusHariIni(jamOperasional)).toBe("Hari ini buka, 08:00 - 17:00");
+  });
+
+  it("menyatakan tutup kalau hari ini tidak ada di jadwal", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 10, 22, 12)); // Minggu
+    expect(statusHariIni(jamOperasional)).toBe("Hari ini tutup");
+  });
+
+  it("tidak menebak status kalau jam operasional belum diisi", () => {
+    expect(statusHariIni(undefined)).toBeNull();
+    expect(statusHariIni({})).toBeNull();
   });
 });
