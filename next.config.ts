@@ -18,12 +18,8 @@ const nextConfig: NextConfig = {
     ];
     return [
       {
-        // Ikon PWA & gambar: isinya stabil, aman di-cache setahun penuh.
+        // Ikon PWA: isinya stabil, aman di-cache setahun penuh.
         source: "/icons/:path*",
-        headers: immutable,
-      },
-      {
-        source: "/:path*.svg",
         headers: immutable,
       },
       {
