@@ -38,8 +38,12 @@ export function NotificationSetup() {
   // tracked separately from `Notification.permission` because that is not
   // reactive: a visitor who grants mid-session via handleEnable() would never
   // get a foreground listener if the effect below only read it on mount.
+  // `Notification` is undefined in iOS Safari tabs (only home-screen web
+  // apps get it) and on the server, so check it rather than `window`.
   const [granted, setGranted] = useState(
-    () => typeof window !== "undefined" && Notification.permission === "granted"
+    () =>
+      typeof Notification !== "undefined" &&
+      Notification.permission === "granted"
   );
   const mountedRef = useRef(true);
 
@@ -94,7 +98,12 @@ export function NotificationSetup() {
     // The original code subscribed unconditionally, so subscribe whenever
     // permission ends up granted — not only when the token request itself
     // succeeded, since a previously-registered device can still be pushed to.
-    if (Notification.permission === "granted") setGranted(true);
+    if (
+      typeof Notification !== "undefined" &&
+      Notification.permission === "granted"
+    ) {
+      setGranted(true);
+    }
     if (result.status === "ok") {
       // Token dicetak agar bisa dipakai mengirim notifikasi uji dari
       // Firebase Console (Cloud Messaging > Send test message).
