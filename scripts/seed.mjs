@@ -40,8 +40,9 @@ async function seedContactInfo() {
     nama_klinik: "Klinik Metro Medika",
     alamat:
       "Ruko PTM I No. 42, JL Raya Alternatif Transyogi, Cileungsi, Perum Metland Transyogi, Bogor, Jawa Barat, Indonesia",
+    link_maps: "https://maps.app.goo.gl/vwMayovP7h6qKtjS9",
     nomor_whatsapp: "6281234567890",
-    nomor_telepon: "021-89231234",
+    nomor_telepon: "021-82492703",
     jam_operasional: {
       senin: "08:00 - 17:00",
       selasa: "08:00 - 17:00",

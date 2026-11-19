@@ -21,6 +21,8 @@ export const db = getFirestore(app);
 export interface ContactInfo {
   nama_klinik?: string;
   alamat?: string;
+  // opsional: link "Bagikan" pin klinik dari Google Maps
+  link_maps?: string;
   nomor_whatsapp?: string;
   nomor_telepon?: string;
   jam_operasional?: Record<string, string>;

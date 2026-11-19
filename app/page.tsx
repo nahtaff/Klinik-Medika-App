@@ -2,6 +2,7 @@
 
 import { loadContactInfo, type ContactInfo } from "@/lib/firestore";
 import { HARI_LABEL, HARI_URUTAN, mapByHari, statusHariIni } from "@/lib/hari";
+import { buildMapsLink } from "@/lib/maps";
 import { isFilled } from "@/lib/text";
 import { useLoad } from "@/lib/useLoad";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
@@ -94,23 +95,37 @@ function InfoContent({ info }: { info: ContactInfo }) {
   const layananItems = (info.layanan ?? []).filter(isFilled);
 
   const hasAlamat = isFilled(info.alamat);
+  const mapsLink = buildMapsLink(info);
+  const hasLokasi = hasAlamat || mapsLink !== null;
   const hasTelepon = isFilled(info.nomor_telepon);
   const hasWhatsapp = isFilled(info.nomor_whatsapp);
   const hasKontak = hasTelepon || hasWhatsapp;
   const hasJadwal = jamEntries.length > 0;
   const hasLayanan = layananItems.length > 0;
 
-  if (!hasAlamat && !hasKontak && !hasJadwal && !hasLayanan) {
+  if (!hasLokasi && !hasKontak && !hasJadwal && !hasLayanan) {
     return <EmptyState message="Detail klinik belum dilengkapi." />;
   }
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      {hasAlamat && (
+      {hasLokasi && (
         <Card title="Alamat" icon={<MapPinIcon />} headingLevel={2}>
-          <p className="text-sm leading-6 text-foreground/80">
-            {info.alamat}
-          </p>
+          {hasAlamat && (
+            <p className="text-sm leading-6 text-foreground/80">
+              {info.alamat}
+            </p>
+          )}
+          {mapsLink && (
+            <a
+              href={mapsLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              Buka di Google Maps
+            </a>
+          )}
         </Card>
       )}
 

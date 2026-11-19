@@ -63,6 +63,7 @@ config_faq/{faqId}
 
 contact_info/{docId}              # satu dokumen
   nama_klinik, alamat, nomor_whatsapp, nomor_telepon: string
+  link_maps: string               # opsional: link "Bagikan" pin klinik dari Google Maps
   jam_operasional: map
 ```
 
