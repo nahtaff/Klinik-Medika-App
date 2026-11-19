@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MessagingResult } from "@/lib/messaging";
+import { isIosBrowserTab, isStandaloneDisplay } from "@/lib/platform";
 
 type UiState =
   | { kind: "idle" }
@@ -16,7 +17,15 @@ function resultToState(result: MessagingResult): UiState {
     case "unsupported":
       return {
         kind: "info",
-        message: "Perangkat/browser ini tidak mendukung notifikasi.",
+        // "tidak mendukung" menyesatkan di iPhone: notifikasi bisa, asal
+        // app dibuka dari Layar Utama. Hanya dipanggil di browser.
+        message: isIosBrowserTab(
+          navigator.userAgent,
+          navigator.maxTouchPoints,
+          isStandaloneDisplay()
+        )
+          ? "Di iPhone/iPad, notifikasi baru bisa diaktifkan setelah aplikasi ditambahkan ke Layar Utama (ketuk Bagikan, lalu Tambah ke Layar Utama). Buka aplikasi dari ikon tersebut, lalu aktifkan notifikasi."
+          : "Perangkat/browser ini tidak mendukung notifikasi.",
       };
     case "no-vapid-key":
       return {
