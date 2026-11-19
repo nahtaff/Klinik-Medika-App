@@ -12,11 +12,12 @@ export default function FloatingWhatsAppButton({
 }) {
   if (!isFilled(nomorWhatsapp)) return null;
 
-  // bottom-24 supaya mengambang di atas bottom navbar, tidak bertabrakan.
+  // 6rem di atas bottom navbar, ditambah safe area: di iPhone (dibuka dari
+  // Layar Utama) navbar ikut memanjang ~34px, jadi tanpa itu tombol menimpanya.
   // Padding kiri/kanan mengikuti viewport (bukan container konten), supaya di
   // layar lebar tombol menempel di pojok kanan bawah, bukan melayang di tengah.
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex justify-end px-5 md:px-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-50 flex justify-end px-5 md:px-6">
       <a
         href={buildWhatsAppLink(nomorWhatsapp)}
         target="_blank"
