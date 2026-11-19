@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { collection, getDocs, limit, query } from "firebase/firestore/lite";
 import { db } from "@/lib/firestore";
-import { HARI_LABEL, HARI_URUTAN } from "@/lib/hari";
+import { HARI_LABEL, HARI_URUTAN, mapByHari } from "@/lib/hari";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Card } from "@/components/Card";
 import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
@@ -135,13 +135,10 @@ function GreetingCard() {
 }
 
 function InfoContent({ info }: { info: ContactInfo }) {
-  const jamEntries = HARI_URUTAN.filter((hari) =>
-    isFilled(info.jam_operasional?.[hari])
-  ).map((hari) => ({
-    hari,
-    label: HARI_LABEL[hari],
-    jam: info.jam_operasional![hari],
-  }));
+  const jamByHari = mapByHari(info.jam_operasional);
+  const jamEntries = HARI_URUTAN.filter((hari) => jamByHari.has(hari)).map(
+    (hari) => ({ hari, label: HARI_LABEL[hari], jam: jamByHari.get(hari)! })
+  );
 
   const layananItems = (info.layanan ?? []).filter(isFilled);
 

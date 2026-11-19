@@ -4,16 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { collection, getDocs, limit, query } from "firebase/firestore/lite";
 import { db } from "@/lib/firestore";
 import { HARI_LABEL, HARI_URUTAN, hariIniKey } from "@/lib/hari";
+import { groupJadwalByHari, type JadwalEntry } from "@/lib/jadwal";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { Card } from "@/components/Card";
 import { EmptyState, ErrorState, Skeleton } from "@/components/StatusStates";
 import { ClockIcon, PersonIcon, WhatsAppIcon } from "@/components/icons";
-
-interface JadwalEntry {
-  hari?: string;
-  jam_mulai?: string;
-  jam_selesai?: string;
-}
 
 interface Doctor {
   nama?: string;
@@ -124,20 +119,8 @@ function JadwalContent({
   const hasFoto = isFilled(doctor.foto_url);
   const hasWhatsapp = isFilled(whatsapp);
 
-  const rawEntries = doctor.jadwal_praktik ?? [];
-  const hasJadwalData = rawEntries.length > 0;
-
-  const jadwalByHari = new Map<string, JadwalEntry>();
-  for (const entry of rawEntries) {
-    if (
-      isFilled(entry?.hari) &&
-      isFilled(entry?.jam_mulai) &&
-      isFilled(entry?.jam_selesai)
-    ) {
-      jadwalByHari.set(entry.hari!.trim().toLowerCase(), entry);
-    }
-  }
-
+  const jadwalByHari = groupJadwalByHari(doctor.jadwal_praktik);
+  const hasJadwalData = jadwalByHari.size > 0;
   const tersediaHariIni = jadwalByHari.has(hariIniKey());
 
   if (!hasNama && !hasSpesialisasi && !hasFoto && !hasJadwalData) {
@@ -190,7 +173,7 @@ function JadwalContent({
         {hasJadwalData ? (
           <ul className="grid gap-x-6 divide-y divide-foreground/10 md:grid-cols-2 md:divide-y-0">
             {HARI_URUTAN.map((hari, index) => {
-              const entry = jadwalByHari.get(hari);
+              const sesi = jadwalByHari.get(hari);
               return (
                 <li
                   key={hari}
@@ -200,14 +183,18 @@ function JadwalContent({
                     {HARI_LABEL[hari]}
                   </span>
                   <div className="flex items-center gap-2">
-                    {entry && (
-                      <span className="font-medium text-foreground">
-                        {entry.jam_mulai} - {entry.jam_selesai}
+                    {sesi && (
+                      <span className="flex flex-col text-right font-medium text-foreground">
+                        {sesi.map(({ jam_mulai, jam_selesai }, i) => (
+                          <span key={i}>
+                            {jam_mulai} - {jam_selesai}
+                          </span>
+                        ))}
                       </span>
                     )}
                     <AvailabilityBadge
-                      available={Boolean(entry)}
-                      label={entry ? "Tersedia" : "Tutup"}
+                      available={Boolean(sesi)}
+                      label={sesi ? "Tersedia" : "Tutup"}
                     />
                   </div>
                 </li>
