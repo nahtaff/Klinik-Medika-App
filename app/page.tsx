@@ -128,7 +128,7 @@ function InfoContent({ info }: { info: ContactInfo }) {
             {hasTelepon && (
               <a
                 href={`tel:${info.nomor_telepon!.replace(/[^\d+]/g, "")}`}
-                className="flex items-center gap-2 text-sm text-foreground/80 underline-offset-4 hover:text-primary hover:underline"
+                className="flex min-h-11 items-center gap-2 text-sm text-foreground/80 underline-offset-4 hover:text-primary hover:underline"
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <PhoneIcon />
@@ -141,7 +141,7 @@ function InfoContent({ info }: { info: ContactInfo }) {
                 href={buildWhatsAppLink(info.nomor_whatsapp!)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-foreground/80 underline-offset-4 hover:text-primary hover:underline"
+                className="flex min-h-11 items-center gap-2 text-sm text-foreground/80 underline-offset-4 hover:text-primary hover:underline"
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-whatsapp/10 text-whatsapp">
                   <WhatsAppIcon />

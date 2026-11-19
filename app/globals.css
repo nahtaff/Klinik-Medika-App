@@ -28,3 +28,27 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+/* Target sentuh: minimal 24px (WCAG 2.5.8), dan 48px di layar sentuh sesuai
+   DESIGN.md mockup (tombol minimal 48px). Di @layer base supaya kelas
+   utilitas Tailwind tetap bisa menimpanya; CSS di luar layer selalu menang. */
+@layer base {
+  :root {
+    --target-size: 24px;
+  }
+  @media (pointer: coarse) {
+    :root {
+      --target-size: 48px;
+    }
+  }
+  :where(
+      button,
+      select,
+      textarea,
+      input:not([type="checkbox"], [type="radio"]),
+      nav a
+    ) {
+    min-block-size: var(--target-size);
+    min-inline-size: var(--target-size);
+  }
+}
