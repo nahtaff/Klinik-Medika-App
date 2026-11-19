@@ -16,6 +16,7 @@ interface NavItem {
   href: string;
   icon: NavIcon;
   isActive: (pathname: string) => boolean;
+  prefetch?: false;
 }
 
 export function BottomNav() {
@@ -40,6 +41,9 @@ export function BottomNav() {
       // masuk, jadi navigasi tidak perlu memuat firebase/auth di semua
       // halaman. Item tetap aktif di /login karena itu gerbangnya.
       href: "/rekam-medis",
+      // Prefetch menjalankan chunk halaman itu, yang memuat firebase/auth dan
+      // script apis.google.com di setiap halaman publik. Cukup unduh saat diketuk.
+      prefetch: false,
       icon: DocumentIcon,
       isActive: (p) => p.startsWith("/rekam-medis") || p.startsWith("/login"),
     },
@@ -64,6 +68,7 @@ export function BottomNav() {
             <li key={item.label} className="flex-1">
               <Link
                 href={item.href}
+                prefetch={item.prefetch}
                 aria-current={active ? "page" : undefined}
                 className={`flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors ${
                   active
