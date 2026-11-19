@@ -11,36 +11,8 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
-// Host yang HARUS di-bypass TOTAL oleh service worker — bukan sekadar
-// NetworkOnly. Firestore memakai koneksi streaming (WebChannel
-// /Listen/channel) yang rusak jika di-proxy ulang oleh fetch handler SW:
-// bahkan NetworkOnly tetap memanggil fetch(request) dan memicu error
-// "A ServiceWorker intercepted the request and encountered an unexpected
-// error". Firebase Storage juga dibiarkan langsung ke jaringan.
-function isBypassHost(hostname: string): boolean {
-  return (
-    hostname === "firestore.googleapis.com" ||
-    hostname === "firebasestorage.googleapis.com" ||
-    hostname.endsWith(".firebasestorage.app")
-  );
-}
-
-// Didaftarkan SEBELUM listener fetch Serwist. Untuk request bypass:
-// stopImmediatePropagation() mencegah listener Serwist ikut jalan, dan kita
-// SENGAJA tidak memanggil respondWith() → browser menangani request secara
-// native. Dengan begitu SW benar-benar tidak menyentuh koneksi Firestore,
-// streaming realtime tetap utuh.
-self.addEventListener("fetch", (event) => {
-  let hostname: string;
-  try {
-    hostname = new URL(event.request.url).hostname;
-  } catch {
-    return;
-  }
-  if (isBypassHost(hostname)) {
-    event.stopImmediatePropagation();
-  }
-});
+// Firestore tidak perlu dikecualikan: Firestore Lite selalu mengirim POST,
+// sedangkan Serwist hanya menangani GET, jadi request-nya langsung ke jaringan.
 
 // Rute sensitif yang TIDAK boleh pernah masuk cache (data kesehatan pribadi
 // & gerbang otentikasi). Selalu ambil dari jaringan, tidak pernah disimpan.
@@ -74,8 +46,6 @@ const serwist = new Serwist({
       handler: new NetworkOnly(),
     },
     // 2. Endpoint auth/FCM → network-only (selalu terbaru).
-    //    (Firestore & Storage sudah di-bypass total di listener fetch atas,
-    //    jadi tidak pernah sampai ke sini.)
     {
       matcher: ({ url }) => NETWORK_ONLY_HOSTS.includes(url.hostname),
       handler: new NetworkOnly(),
