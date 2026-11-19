@@ -58,6 +58,8 @@ function mapAuthError(error: unknown): string {
       return "Kode OTP salah. Periksa kembali kode yang dikirim.";
     case "auth/code-expired":
       return "Kode OTP sudah kedaluwarsa. Kirim ulang kode.";
+    case "auth/network-request-failed":
+      return "Gagal terhubung ke server. Periksa koneksi internet Anda lalu coba lagi.";
     default:
       return "Terjadi kesalahan. Coba lagi.";
   }

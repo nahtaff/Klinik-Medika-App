@@ -7,13 +7,13 @@ import { isIosBrowserTab, isStandaloneDisplay } from "@/lib/platform";
 type UiState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "enabled"; token: string }
+  | { kind: "enabled" }
   | { kind: "info"; message: string };
 
 function resultToState(result: MessagingResult): UiState {
   switch (result.status) {
     case "ok":
-      return { kind: "enabled", token: result.token };
+      return { kind: "enabled" };
     case "unsupported":
       return {
         kind: "info",
@@ -72,6 +72,14 @@ export function NotificationSetup() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!granted) return;
+
+    // Izin sudah ada (app dibuka ulang, atau kembali ke Beranda): tampilkan
+    // "aktif", bukan tombol yang seolah notifikasi belum pernah diaktifkan.
+    // shortcut: dilihat dari izin browser, bukan dari token FCM; kalau
+    // getToken pernah gagal, status tetap tampil aktif.
+    setState((current) =>
+      current.kind === "idle" ? { kind: "enabled" } : current
+    );
 
     let cancelled = false;
     let unsubscribe: (() => void) | undefined;
