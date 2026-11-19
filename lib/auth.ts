@@ -7,7 +7,17 @@
 //
 // Catatan: modul ini tidak boleh di-import dari komponen yang aktif di
 // Beranda, karena itu akan menariknya kembali ke initial load.
-import { getAuth } from "firebase/auth";
+import { browserSessionPersistence, getAuth, setPersistence } from "firebase/auth";
 import { app } from "@/lib/firebase";
 
 export const auth = getAuth(app);
+
+// Sesi hanya hidup selama tab/app terbuka (sessionStorage), bukan selamanya
+// (default IndexedDB): rekam medis tidak boleh tetap terbuka bagi orang
+// berikutnya di HP yang dipakai bersama. Konsekuensinya pasien OTP ulang
+// tiap membuka app. Sesi lama di IndexedDB ikut dipindahkan, tidak hilang.
+if (typeof window !== "undefined") {
+  setPersistence(auth, browserSessionPersistence).catch((error) => {
+    console.error("Gagal mengatur masa berlaku sesi:", error);
+  });
+}

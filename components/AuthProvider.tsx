@@ -16,8 +16,8 @@ const AuthContext = createContext<AuthContextValue>({
 });
 
 // Sumber kebenaran sesi pasien, dipakai F3 (OTP login) dan F4 (gerbang
-// akses rekam medis). Firebase Auth JS SDK persist sesi ke IndexedDB
-// secara default, jadi status "authenticated" tetap bertahan lintas reload.
+// akses rekam medis). Sesi disimpan di sessionStorage (lihat lib/auth.ts):
+// bertahan lintas reload, tapi hilang saat tab/app ditutup.
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [status, setStatus] = useState<AuthStatus>("loading");
