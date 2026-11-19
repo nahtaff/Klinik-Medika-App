@@ -229,7 +229,7 @@ function JadwalContent({
           )}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-90"
+          className="flex items-center justify-center gap-2 rounded-full bg-whatsapp px-4 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-90"
         >
           <WhatsAppIcon />
           Hubungi via WhatsApp untuk janji temu
@@ -251,7 +251,7 @@ function AvailabilityBadge({
       className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${
         available
           ? "bg-primary/10 text-primary"
-          : "bg-foreground/5 text-foreground/50"
+          : "bg-foreground/5 text-foreground/70"
       }`}
     >
       <span

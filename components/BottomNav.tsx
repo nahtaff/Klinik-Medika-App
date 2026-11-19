@@ -72,7 +72,7 @@ export function BottomNav() {
                 className={`flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors ${
                   active
                     ? "text-primary"
-                    : "text-foreground/50 hover:text-foreground/80"
+                    : "text-foreground/60 hover:text-foreground/80"
                 }`}
               >
                 <Icon className="h-6 w-6" />

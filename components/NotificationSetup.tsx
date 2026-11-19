@@ -136,7 +136,7 @@ export function NotificationSetup() {
       )}
 
       {state.kind === "info" && (
-        <p className="mt-2 text-xs text-foreground/50">{state.message}</p>
+        <p className="mt-2 text-xs text-foreground/60">{state.message}</p>
       )}
     </section>
   );

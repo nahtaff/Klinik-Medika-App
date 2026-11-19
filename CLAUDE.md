@@ -156,7 +156,7 @@ Installable, offline pada halaman utama, push notification.
 
 ## Acuan visual
 
-Mockup high-fidelity (Beranda + Jadwal) ada di folder `/design` (atau lihat lampiran skripsi). Warna utama teal `#0EA5A4`. Font Plus Jakarta Sans (heading) / Inter (body). Ikuti desain mockup untuk tampilan akhir.
+Mockup high-fidelity (Beranda + Jadwal) ada di folder `/design` (atau lihat lampiran skripsi). Warna utama teal `#0EA5A4` (token `--brand`), hanya untuk grafis besar seperti logo: kontrasnya cuma 3.03:1 di atas putih. Teks dan tombol memakai teal yang sama tapi lebih gelap, `#0f766e` (token `--primary`, 5.47:1). Font Plus Jakarta Sans (heading) / Inter (body). Ikuti desain mockup untuk tampilan akhir.
 
 ---
 

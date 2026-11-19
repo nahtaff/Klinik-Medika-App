@@ -127,7 +127,7 @@ function GreetingCard() {
       <h1 className="font-heading text-lg font-bold leading-snug">
         Selamat datang di Klinik Metro Medika
       </h1>
-      <p className="mt-1 text-sm text-primary-foreground/85">
+      <p className="mt-1 text-sm text-primary-foreground">
         Layanan kesehatan untuk Anda
       </p>
     </div>
@@ -187,7 +187,7 @@ function InfoContent({ info }: { info: ContactInfo }) {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-foreground/80 underline-offset-4 hover:text-primary hover:underline"
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#25D366]/10 text-[#25D366]">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-whatsapp/10 text-whatsapp">
                   <WhatsAppIcon />
                 </span>
                 {info.nomor_whatsapp} (WhatsApp)

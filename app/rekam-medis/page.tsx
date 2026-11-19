@@ -237,7 +237,7 @@ function Field({ label, value }: { label: string; value: string | undefined }) {
   if (!isFilled(value)) return null;
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="text-xs font-medium uppercase tracking-wide text-foreground/45">
+      <dt className="text-xs font-medium uppercase tracking-wide text-foreground/60">
         {label}
       </dt>
       <dd className="text-sm leading-6 text-foreground/85">{value}</dd>

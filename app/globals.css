@@ -3,8 +3,14 @@
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
-  --primary: #0ea5a4;
+  /* Brand teal #0ea5a4 is only 3.03:1 on white, so it can't carry text or
+     button labels (WCAG AA needs 4.5:1). --primary is the same hue darkened
+     to 5.47:1; --brand stays for large graphics only (logo tile). */
+  --primary: #0f766e;
   --primary-foreground: #ffffff;
+  --brand: #0ea5a4;
+  /* WhatsApp's own dark green: #25d366 is 1.98:1 under white text. */
+  --whatsapp: #075e54;
 }
 
 @theme inline {
@@ -12,6 +18,8 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-brand: var(--brand);
+  --color-whatsapp: var(--whatsapp);
   --font-sans: var(--font-inter);
   --font-heading: var(--font-plus-jakarta-sans);
 }
