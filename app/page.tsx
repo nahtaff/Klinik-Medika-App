@@ -15,6 +15,7 @@ import {
   StethoscopeIcon,
   WhatsAppIcon,
 } from "@/components/icons";
+import { InstallAppCard } from "@/components/InstallAppCard";
 import { NotificationSetup } from "@/components/NotificationSetup";
 
 // Server Component; revalidasi ISR diatur sekali di app/layout.tsx.
@@ -44,6 +45,7 @@ export default async function Home() {
         <EmptyState message="Informasi klinik belum tersedia." />
       )}
 
+      <InstallAppCard />
       <NotificationSetup />
     </main>
   );
