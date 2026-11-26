@@ -61,7 +61,7 @@ function AccordionItem({ faq }: { faq: Faq }) {
         <ChevronDownIcon className="mt-0.5 -rotate-90 text-foreground/50 group-open:rotate-0 motion-safe:transition-transform" />
         {faq.pertanyaan}
       </summary>
-      <div className="pb-3 pl-6 text-sm leading-6 text-foreground/70">
+      <div className="whitespace-pre-line pb-3 pl-6 text-sm leading-6 text-foreground/70">
         {faq.jawaban}
       </div>
     </details>
