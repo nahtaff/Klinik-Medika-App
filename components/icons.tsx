@@ -256,3 +256,25 @@ export function WhatsAppIcon({ className = "h-4 w-4 shrink-0" }: { className?: s
     </svg>
   );
 }
+
+// Ikon "Bagikan" ala Safari iOS (kotak dengan panah ke atas), untuk panduan
+// Tambah ke Layar Utama supaya mudah dicocokkan dengan layar Safari.
+export function ShareIcon({ className = "h-4 w-4 shrink-0" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className={className}
+      aria-hidden="true"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12M8 7l4-4 4 4" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M8 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2"
+      />
+    </svg>
+  );
+}

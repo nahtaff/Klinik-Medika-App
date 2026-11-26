@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { isIosBrowserTab, isStandaloneDisplay } from "@/lib/platform";
+import { ShareIcon } from "@/components/icons";
 
 // Dikirim Chrome/Edge (Android & desktop) saat app bisa dipasang; membawa
 // dialog pasang bawaan browser. Belum ada di tipe DOM TypeScript.
@@ -58,6 +59,9 @@ export function InstallAppCard() {
   // shortcut: Safari tidak bisa tahu app sudah ada di Layar Utama, jadi di tab
   // Safari kartu tetap tampil; "Nanti saja" menyembunyikannya sampai app ditutup.
   const [platform, setPlatform] = useState<"ios" | "other" | null>(null);
+  // Safari tidak punya cara memasang app dari halaman web, jadi di iPhone
+  // tombol Pasang membuka panduan langkah, bukan dialog instal.
+  const [stepsOpen, setStepsOpen] = useState(false);
 
   useEffect(() => {
     const standalone = isStandaloneDisplay();
@@ -99,24 +103,33 @@ export function InstallAppCard() {
         biasa.
       </p>
 
-      {platform === "ios" && (
-        <p className="mt-2 text-sm text-foreground/80">
-          Ketuk tombol <strong>Bagikan</strong> (ikon kotak dengan panah ke
-          atas, atau lewat menu •••), lalu pilih{" "}
-          <strong>Tambah ke Layar Utama</strong>.
-        </p>
+      {stepsOpen && (
+        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-foreground/80">
+          <li>
+            Ketuk ikon{" "}
+            <ShareIcon className="inline h-4 w-4 align-text-bottom text-primary" />{" "}
+            <strong>Bagikan</strong>. Kalau tidak terlihat, ketuk dulu menu
+            titik tiga (•••) di samping alamat web.
+          </li>
+          <li>
+            Gulir daftarnya, lalu pilih <strong>Tambah ke Layar Utama</strong>.
+          </li>
+          <li>
+            Ketuk <strong>Tambah</strong>. Ikon Metro Medika akan muncul di
+            Layar Utama.
+          </li>
+        </ol>
       )}
 
       <div className="mt-3 flex items-center gap-4">
-        {platform === "other" && (
-          <button
-            type="button"
-            onClick={install}
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-          >
-            Pasang
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={platform === "ios" ? () => setStepsOpen((open) => !open) : install}
+          aria-expanded={platform === "ios" ? stepsOpen : undefined}
+          className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+        >
+          Pasang
+        </button>
         <button
           type="button"
           onClick={dismiss}
